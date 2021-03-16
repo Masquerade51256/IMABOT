@@ -1,6 +1,5 @@
 data/*
 .idea/*
-newmodel/*
 validation_data/*
-new_model/*
+new_models/*
 *.pyc

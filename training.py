@@ -2,7 +2,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten
-from tensorflow.keras.layers import Conv1D, MaxPooling1D, BatchNormalization
+from tensorflow.keras.layers import Conv1D, Conv2D, Conv3D, MaxPooling1D, BatchNormalization
 import os
 import random
 import time
@@ -10,7 +10,13 @@ import sys
 
 
 ACTIONS = ["left", "right", "none"]
-reshape = (-1, 8, 60)
+# reshape = (-1, 8, 60)
+reshape = (-1, 50, 60, 8)  
+# 用于后续规格化，
+# -1表示样本数量或批数，
+# 500为时间区间0~50ms，（不确定此处单位是否为ms，需验证数据采集代码）
+# 60为频率区间0~60hz，
+# 8为通道数，由数据采集设备规格决定
 
 def create_data(starting_dir="data"):
     training_data = {}
@@ -85,14 +91,21 @@ test_y = np.array(test_y)
 model = Sequential()
 
 ### 构建网络 ###
-model.add(Conv1D(64, (3), input_shape=train_X.shape[1:]))       ### 输入层 input_shape = [8, 60]
+# model.add(Conv1D(64, (3), input_shape=train_X.shape[1:]))       ### 输入层 input_shape = [8, 60]
+# 上面一行为模型增加了一个Conv1D作为第一个层，即输入层
+# Conv1D的参数中，filter=64，表示卷积核的数量，同时也是输出特征图的第一维度的数值
+# kernel_size=(3)，代表卷积核的大小
+# 由于为输入层，所以还要提供input_shape参数，[1:]表示取该元组的第二（标号为1）到最后一个元素，1代表批的形状是一维的
+model.add(Conv2D(64, (3,3,8), input_shape=train_X.shape[1:]))   ### 尝试改为2维卷积核，因为输入数据是二维的（不包括批及通道）
 model.add(Activation('relu'))       ### 激发函数
 
-model.add(Conv1D(64, (2)))      ### Hiden_Layer1
+# model.add(Conv1D(64, (2)))      ### Hiden_Layer1
+model.add(Conv2D(64, (64,3,3)))   
 model.add(Activation('relu'))
 model.add(MaxPooling1D(pool_size=(2)))
 
-model.add(Conv1D(64, (1)))      ### Hiden Layer2
+# model.add(Conv1D(64, (1)))      ### Hiden Layer2
+model.add(Conv2D(64, (64,3,3)))   
 model.add(Activation('relu'))
 model.add(MaxPooling1D(pool_size=(2)))
 
