@@ -2,3 +2,5 @@ data/*
 .idea/*
 newmodel/*
 validation_data/*
+new_model/*
+*.pyc
