@@ -2,7 +2,8 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten
-from tensorflow.keras.layers import Conv1D, Conv2D, Conv3D, MaxPooling1D, BatchNormalization
+from tensorflow.keras.layers import Conv1D, Conv2D
+from tensorflow.keras.layers import MaxPooling1D, MaxPooling2D, BatchNormalization
 import os
 import random
 import time
@@ -11,12 +12,16 @@ import sys
 
 ACTIONS = ["left", "right", "none"]
 # reshape = (-1, 8, 60)
-reshape = (-1, 50, 60, 8)  
+# reshape = (-1, 50, 60, 8)  
 # 用于后续规格化，
 # -1表示样本数量或批数，
 # 500为时间区间0~50ms，（不确定此处单位是否为ms，需验证数据采集代码）
 # 60为频率区间0~60hz，
-# 8为通道数，由数据采集设备规格决定
+# 8为通道数，由数据采集设备规格决定，
+# （删除）由于后续keras中卷积层默认通道数在最后一个维度上，即channels_last，故此处需要将8放在最后
+reshape = (-1, 8, 50, 60)   
+### 将通道数放在第一位（除样本数量或批数），以适应采集数据的格式，
+# 后续需要显式地将卷积层的data_format参数声明为channels_first
 
 def create_data(starting_dir="data"):
     training_data = {}
@@ -36,7 +41,7 @@ def create_data(starting_dir="data"):
 
     for action in ACTIONS:
         np.random.shuffle(training_data[action])  # note that regular shuffle is GOOF af
-        training_data[action] = training_data[action][:min(lengths)]        ## 规格化，保证训练样本中的比例为1:1:1 ###
+        training_data[action] = training_data[action][:min(lengths)]        ## 规格化,将三个标签的长度截取成相同，保证训练样本中的比例为1:1:1 ###
 
     lengths = [len(training_data[action]) for action in ACTIONS]
     print(lengths)
@@ -93,25 +98,31 @@ model = Sequential()
 ### 构建网络 ###
 # model.add(Conv1D(64, (3), input_shape=train_X.shape[1:]))       ### 输入层 input_shape = [8, 60]
 # 上面一行为模型增加了一个Conv1D作为第一个层，即输入层
-# Conv1D的参数中，filter=64，表示卷积核的数量，同时也是输出特征图的第一维度的数值
+# Conv1D的参数中，filter=64，表示卷积核的数量，同时也是输出特征图的通道数
 # kernel_size=(3)，代表卷积核的大小
 # 由于为输入层，所以还要提供input_shape参数，[1:]表示取该元组的第二（标号为1）到最后一个元素，1代表批的形状是一维的
-model.add(Conv2D(64, (3,3,8), input_shape=train_X.shape[1:]))   ### 尝试改为2维卷积核，因为输入数据是二维的（不包括批及通道）
+model.add(Conv2D(64, (3,3), input_shape=train_X.shape[1:], data_format='channels_first'))   
+### 尝试改为2维卷积核，因为输入数据是二维的（不包括批及通道维度）， 
+# input_shape=(50,60,8)(实际输入时会增加批维度，即(batch_size,50,60,8))
+# 根据卷积前后形状变化公式：HO=(HI+2padding-HK)/stride+1
+# output_shape=(batch_size,48,58,64)
+# 若想使卷积不缩小数据规模，即HO=HI，求解得padding=(h-1)/2，此处即padding=1
+
 model.add(Activation('relu'))       ### 激发函数
 
 # model.add(Conv1D(64, (2)))      ### Hiden_Layer1
-model.add(Conv2D(64, (64,3,3)))   
+model.add(Conv2D(64, (3,3), data_format='channels_first'))   
 model.add(Activation('relu'))
-model.add(MaxPooling1D(pool_size=(2)))
+model.add(MaxPooling2D(pool_size=2))
 
 # model.add(Conv1D(64, (1)))      ### Hiden Layer2
-model.add(Conv2D(64, (64,3,3)))   
+model.add(Conv2D(64, (3,3), data_format='channels_first'))   
 model.add(Activation('relu'))
-model.add(MaxPooling1D(pool_size=(2)))
+model.add(MaxPooling2D(pool_size=2))
 
 model.add(Flatten())
 
-model.add(Dense(512))
+model.add(Dense(512))   ### 全连接层
 
 model.add(Dense(3))     ### 输出层，3维表示结果倾向left、none或者right
 model.add(Activation('softmax'))        ###分类问题学习时输出层激活函数常选用softmax函数（回归问题常选用恒等函数
