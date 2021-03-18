@@ -8,6 +8,7 @@ import os
 import random
 import time
 import sys
+import data_formatting_test
 
 
 ACTIONS = ["left", "right", "none"]
@@ -19,7 +20,7 @@ ACTIONS = ["left", "right", "none"]
 # 60为频率区间0~60hz，
 # 8为通道数，由数据采集设备规格决定，
 # （删除）由于后续keras中卷积层默认通道数在最后一个维度上，即channels_last，故此处需要将8放在最后
-reshape = (-1, 8, 50, 60)   
+reshape = (-1, 8, 60, 60)   
 ### 将通道数放在第一位（除样本数量或批数），以适应采集数据的格式，
 # 后续需要显式地将卷积层的data_format参数声明为channels_first
 
@@ -136,7 +137,7 @@ model.compile(loss='categorical_crossentropy',      ### 损失函数选用交叉
 
 ### 训练 ###
 # epochs 训练次数，一个epoch指将样本中的数据全部学习了一次
-epochs = int(sys.argv[1])
+epochs = 10
 # batch_size 对样本总数进行分批，以批为单位进行学习，而不是单个数据。由于之前步骤中已经将数据打乱，等效于此处随机分批
 batch_size = 32
 for epoch in range(epochs):

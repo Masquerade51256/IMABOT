@@ -8,7 +8,7 @@ import os
 import random
 import time
 import sys
-import dataLoad
+import dataLoading
 
 
 ACTIONS = ["left", "right", "none"]
@@ -22,7 +22,7 @@ reshape = (-1, 60, 60, 8)
 # cpu版本的tf不支持channels_first，只支持NHWC模式，即channels_last
 
 print("creating training data")
-traindata = dataLoad.load_and_format(starting_dir="data")
+traindata = dataLoading.load_and_format(starting_dir="data")
 train_X = []
 train_y = []
 for X, y in traindata:      ### X为训练集样本记录，即combine_data[]中的data；y为标记，即combine_data[]中用于表示“left”的[1,0,0]等 ###
@@ -30,7 +30,7 @@ for X, y in traindata:      ### X为训练集样本记录，即combine_data[]中
     train_y.append(y)       ### shape = [11250, 3]
 
 print("creating testing data")
-testdata = dataLoad.load_and_format(starting_dir="validation_data")
+testdata = dataLoading.load_and_format(starting_dir="validation_data")
 test_X = []
 test_y = []
 for X, y in testdata:

@@ -6,4 +6,5 @@
     'channels_number': 8,
     'frquency_slot': 60,
     'batch_size': 128,
+    'epochs': 10,
 }
