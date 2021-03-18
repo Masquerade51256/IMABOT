@@ -15,7 +15,7 @@ ACTIONS = ["left", "right", "none"]
 # reshape = (-1, 50, 60, 8)  
 # 用于后续规格化，
 # -1表示样本数量或批数，
-# 500为时间区间0~50ms，（不确定此处单位是否为ms，需验证数据采集代码）
+# 500为时间区间0~50ms，（不确定此处单位是否为ms，需验证数据采集代码），后划分数据时应以此为参照
 # 60为频率区间0~60hz，
 # 8为通道数，由数据采集设备规格决定，
 # （删除）由于后续keras中卷积层默认通道数在最后一个维度上，即channels_last，故此处需要将8放在最后
@@ -98,7 +98,7 @@ model = Sequential()
 ### 构建网络 ###
 # model.add(Conv1D(64, (3), input_shape=train_X.shape[1:]))       ### 输入层 input_shape = [8, 60]
 # 上面一行为模型增加了一个Conv1D作为第一个层，即输入层
-# Conv1D的参数中，filter=64，表示卷积核的数量，同时也是输出特征图的通道数
+# Conv1D的参数中，filter=64，表示卷积核的数量，同时也是输出特征图的通道数  
 # kernel_size=(3)，代表卷积核的大小
 # 由于为输入层，所以还要提供input_shape参数，[1:]表示取该元组的第二（标号为1）到最后一个元素，1代表批的形状是一维的
 model.add(Conv2D(64, (3,3), input_shape=train_X.shape[1:], data_format='channels_first'))   
