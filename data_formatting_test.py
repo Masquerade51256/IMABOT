@@ -43,7 +43,6 @@ def load_and_format(starting_dir="data",
                 combined_data.append([data, [1, 0, 0]])        #将训练数据写成[data, tag]的记录对，其中tag使用onehot表示
 
             elif action == "right":
-                #np.append(combined_data, np.array([data, [1, 0]]))
                 combined_data.append([data, [0, 0, 1]])
 
             elif action == "none":
@@ -51,11 +50,18 @@ def load_and_format(starting_dir="data",
 
     np.random.shuffle(combined_data)
     print("length:",len(combined_data))
-    
+
     return combined_data
         
 
 def format(raw_data,stride=1,time_slot=2):
+    """
+    raw_data: 原始数据，要求三维数据，分别表示数据量、通道数和频率
+
+    stride:
+    
+    time_slot:
+    """
     N=raw_data.shape[0]
     c=raw_data.shape[1]
     f=raw_data.shape[2]
