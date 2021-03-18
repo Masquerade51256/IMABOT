@@ -1,0 +1,9 @@
+{
+    'stride_of_data_slide': 10,
+    'time_slote': 60,
+    'ACTIONS': ["left", "right", "none"],
+    'data_dir': "data",
+    'channels_number': 8,
+    'frquency_slot': 60,
+    'batch_size': 128,
+}

@@ -45,6 +45,7 @@ def create_data(starting_dir="data"):
 
     lengths = [len(training_data[action]) for action in ACTIONS]
     print(lengths)
+    
     # creating X, y 
     combined_data = []
     for action in ACTIONS:
