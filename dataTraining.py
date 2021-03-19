@@ -6,8 +6,8 @@ from tensorflow.keras.layers import Conv1D, Conv2D
 from tensorflow.keras.layers import MaxPooling1D, MaxPooling2D, BatchNormalization
 import os
 import random
-import time
 import sys
+import time
 import dataLoading
 
 

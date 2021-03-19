@@ -12,30 +12,22 @@ import numpy as np
 import time
 import matplotlib.pyplot as plt
 from matplotlib import style
-from collections import deque                  
-import cv2
+from collections import deque
 import os
-import random
-import tensorflow as tf
 import sys
+from BoxGraphicView import BoxGraphicView
 
 
 reshape = (-1, 8, 60)
 FFT_MAX_HZ = 60     #fft频率区间
-
 HM_SECONDS = 10  # this is approximate. Not 100%. do not depend on this.        #HM是什么意思？
 TOTAL_ITERS = HM_SECONDS*25  # ~25 iters/sec        #采样频率？
-# BOX_MOVE = sys.argv[1]  # random or model      #random/model决定此脚本是数据采集还是模型测试
-# print(BOX_MOVE)
-
-ACTION = sys.argv[2] # THIS IS THE ACTION YOU'RE THINKING (left, none or right)
-
-# if BOX_MOVE == 'model':
-#     MODEL_NAME = os.path.join('new_models',sys.argv[3])  # your model path here. 
-#     model = tf.keras.models.load_model(MODEL_NAME)
-#     model.predict( np.zeros((32,8,60)).reshape(reshape) )         #predict函数有什么作用？此处D1取值32是什么意义？
-
-
+ACTION = sys.argv[1] # THIS IS THE ACTION YOU'RE THINKING (left, none or right)
+# 此处在读取action后，
+# 应从hyperParameters中读取ACTIONS列表，
+# 验证其中是否已存在本action，
+# 如不存在，应将其添加
+## 不将action限定在left,right,none是打算通过提高分类数量来提高最终准确率
 
 last_print = time.time()
 fps_counter = deque(maxlen=150)
@@ -46,88 +38,28 @@ streams = resolve_stream('type', 'EEG')
 # create a new inlet to read from the stream
 inlet = StreamInlet(streams[0])
 
-WIDTH = 800
-HEIGHT = 800
-SQ_SIZE = 50
-MOVE_SPEED = 1
+box = BoxGraphicView()
 
-square = {'x1': int(int(WIDTH)/2-int(SQ_SIZE/2)), 
-          'x2': int(int(WIDTH)/2+int(SQ_SIZE/2)),
-          'y1': int(int(HEIGHT)/2-int(SQ_SIZE/2)),
-          'y2': int(int(HEIGHT)/2+int(SQ_SIZE/2))}
-
-
-box = np.ones((square['y2']-square['y1'], square['x2']-square['x1'], 3)) * np.random.uniform(size=(3,))
-horizontal_line = np.ones((HEIGHT, 10, 3)) * np.random.uniform(size=(3,))
-vertical_line = np.ones((10, WIDTH, 3)) * np.random.uniform(size=(3,))
-
-total = 0
-left = 0
-right = 0
-none = 0
 correct = 0 
-
 channel_datas = []
 
 for i in range(TOTAL_ITERS):  # how many iterations. Eventually this would be a while True
     channel_data = []
     for i in range(8): # each of the 8 channels here
         sample, timestamp = inlet.pull_sample()
-        channel_data.append(sample[:FFT_MAX_HZ])
+        channel_data.append(sample[:FFT_MAX_HZ])    #频率上限
 
     fps_counter.append(time.time() - last_print)
     last_print = time.time()
     cur_raw_hz = 1/(sum(fps_counter)/len(fps_counter))
     print(cur_raw_hz)
 
-    env = np.zeros((WIDTH, HEIGHT, 3))
-
-    env[:,HEIGHT//2-5:HEIGHT//2+5,:] = horizontal_line
-    env[WIDTH//2-5:WIDTH//2+5,:,:] = vertical_line
-    env[square['y1']:square['y2'], square['x1']:square['x2']] = box
-
-    cv2.imshow('', env)
-    cv2.waitKey(1)
-
-    
-
-    # if BOX_MOVE == "random":
-    #     move = random.choice([-1,0,1])
-    #     square['x1'] += move
-    #     square['x2'] += move
-
-# prediction
-    # elif BOX_MOVE == "model":
-    #     network_input = np.array(channel_data).reshape(reshape)
-    #     out = model.predict(network_input)
-    #     print(out[0])
-    #     choice = np.argmax(out)
-    #     if choice == 0:
-    #         if ACTION == "left":
-    #             correct += 1
-    #         square['x1'] -= MOVE_SPEED
-    #         square['x2'] -= MOVE_SPEED
-    #         left += 1
-
-    #     elif choice == 2:
-    #         if ACTION == "right":
-    #             correct += 1
-    #         square['x1'] += MOVE_SPEED
-    #         square['x2'] += MOVE_SPEED
-    #         right += 1
-
-    #     else:
-    #         if ACTION == "none":
-    #             correct += 1
-    #         none += 1
-
-    # total += 1
-
-
+    box.move('random',1)
+    # box.move(ACTION,1)
     channel_datas.append(channel_data)
 
-#plt.plot(channel_datas[0][0])
-#plt.show()
+# plt.plot(channel_datas[0][0])
+# plt.show()
 
 datadir = "data"
 if not os.path.exists(datadir):
@@ -144,11 +76,6 @@ np.save(os.path.join(actiondir, f"{int(time.time())}.npy"), np.array(channel_dat
 print("done.")
 
 for action in ['left', 'right', 'none']:
+    # 此处的范围应改为从hyperParameters中读取的ACTIONS列表
     #print(f"{action}:{len(os.listdir(f'data/{action}'))}")
     print(action, sum(os.path.getsize(f'data/{action}/{f}') for f in os.listdir(f'data/{action}'))/1_000_000, "MB")
-
-# print(ACTION, correct/total)
-# print(f"left: {left/total}, right: {right/total}, none: {none/total}")
-
-# with open("accuracies.csv", "a") as f:
-#     f.write(f"{int(time.time())},{ACTION},{correct/total},{MODEL_NAME},{left/total},{right/total},{none/total}\n")

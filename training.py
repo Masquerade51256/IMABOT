@@ -8,7 +8,7 @@ import os
 import random
 import time
 import sys
-import data_formatting_test
+import dataLoading
 
 
 ACTIONS = ["left", "right", "none"]

@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import matplotlib.pyplot as plt
 # 测试将采集到的数据（[250,8,60]）划分为带有时间片维度的数据（[n,8,50,60]）
 
 
@@ -7,7 +8,6 @@ def load_and_format(starting_dir="data",
                     stride=10,
                     time_slot=60,
                     actions = ["left", "right", "none"]):
-    starting_dir = "data"
     training_data = {}
     for action in actions:
         if action not in training_data:
@@ -77,21 +77,11 @@ def format(raw_data,stride=1,time_slot=2):
     # print(data.shape)
     return data
 
+if __name__=="__main__":
+    load_and_format()
 
-load_and_format()
-    
-# all_num=12
-# channels_num=8
-# freq_slot=6
-# raw_data = np.random.randn(all_num,channels_num,freq_slot)
-# print(format(raw_data))
-
-# a = np.array([[[1,2,3],
-#                 [4,5,6]],
-#                 [[7,8,9],
-#                 [10,11,12]]])
-# print(a[0,0])
-# print(a.shape)
-# a=a.reshape(-1,3)
-# print(a)
-# print(a[0])
+    # all_num=12
+    # channels_num=8
+    # freq_slot=6
+    # raw_data = np.random.randn(all_num,channels_num,freq_slot)
+    # print(format(raw_data))

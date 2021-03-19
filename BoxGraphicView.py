@@ -1,9 +1,17 @@
+import random
 from time import sleep
 import cv2
 import numpy as np
 
 class BoxGraphicView:
     def __init__(self):
+        '''
+        e.g.:\n
+        box=BoxGraphicView()\n
+        for i in range(100):\n
+            sleep(0.1)\n
+            box.move('random',3)\n
+        '''
         self.WIDTH = 800
         self.HEIGHT = 800
         self.SQ_SIZE = 50
@@ -16,26 +24,37 @@ class BoxGraphicView:
         self.horizontal_line = np.ones((self.HEIGHT, 10, 3)) * np.random.uniform(size=(3,))
         self.vertical_line = np.ones((10, self.WIDTH, 3)) * np.random.uniform(size=(3,))
         self.env = np.zeros((self.WIDTH, self.HEIGHT, 3))
+
+    def move(self, direction, step=0):
+        '''
+        e.g.:\n
+        box=BoxGraphicView()\n
+        for i in range(100):\n
+            sleep(0.1)\n
+            box.move('random',3)\n
+        '''
+        self.env = np.zeros((self.WIDTH, self.HEIGHT, 3))
         self.env[:,self.HEIGHT//2-5:self.HEIGHT//2+5,:] = self.horizontal_line
         self.env[self.WIDTH//2-5:self.WIDTH//2+5,:,:] = self.vertical_line
         self.env[self.square['y1']:self.square['y2'], self.square['x1']:self.square['x2']] = self.box
-
         cv2.imshow('', self.env)
         cv2.waitKey(1)
 
-    def move(self, direction, step=0):
         if step == 0:
             step = self.MOVE_SPEED
-
         if direction == 'left':
             self.square['x1']-=step
             self.square['x2']-=step
         elif direction == 'right':
             self.square['x1']+=step
             self.square['x2']+=step
+        elif direction == 'random':
+            move = random.choice([-1,0,1])
+            self.square['x1']+=(move*step)
+            self.square['x2']+=(move*step)
 
-box=BoxGraphicView()
-for i in range(100):
-    box.move('right')
-for i in range(100):
-    box.move('left')
+if __name__=="__main__":
+    box=BoxGraphicView()
+    for i in range(100):
+        sleep(0.1)
+        box.move('random',3)
