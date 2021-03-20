@@ -9,10 +9,14 @@ import random
 import sys
 import time
 import dataLoading
+from configReader import ConfigReader
 
-
-ACTIONS = ["left", "right", "none"]
-reshape = (-1, 60, 60, 8)  
+conf = ConfigReader("hyperParameters.ini")
+ACTIONS = conf.actions
+TIME_SLOT = conf.time_slot
+FREQUENCY_SLOT = conf.frequency_slot
+CHANNELS_NUM = conf.channels_num
+reshape = (-1, TIME_SLOT, FREQUENCY_SLOT, CHANNELS_NUM)  
 # 用于后续规格化，(NTFC)
 # -1表示样本数量或批数，
 # 500为时间区间0~50ms，（不确定此处单位是否为ms，需验证数据采集代码），后划分数据时应以此为参照
@@ -22,7 +26,7 @@ reshape = (-1, 60, 60, 8)
 # cpu版本的tf不支持channels_first，只支持NHWC模式，即channels_last
 
 print("creating training data")
-traindata = dataLoading.load_and_format(starting_dir="data")
+traindata = dataLoading.load_and_format(conf.training_data_dir)
 train_X = []
 train_y = []
 for X, y in traindata:      ### X为训练集样本记录，即combine_data[]中的data；y为标记，即combine_data[]中用于表示“left”的[1,0,0]等 ###
@@ -30,7 +34,7 @@ for X, y in traindata:      ### X为训练集样本记录，即combine_data[]中
     train_y.append(y)       ### shape = [11250, 3]
 
 print("creating testing data")
-testdata = dataLoading.load_and_format(starting_dir="validation_data")
+testdata = dataLoading.load_and_format(conf.testing_data_dir)
 test_X = []
 test_y = []
 for X, y in testdata:
@@ -91,9 +95,9 @@ model.compile(loss='categorical_crossentropy',      ### 损失函数选用交叉
 
 ### 训练 ###
 # epochs 训练次数，一个epoch指将样本中的数据全部学习了一次
-epochs = 10
+epochs = conf.epochs
 # batch_size 对样本总数进行分批，以批为单位进行学习，而不是单个数据。由于之前步骤中已经将数据打乱，等效于此处随机分批
-batch_size = 32
+batch_size = conf.batch_size
 for epoch in range(epochs):
     model.fit(train_X, train_y, batch_size=batch_size, epochs=1, validation_data=(test_X, test_y))
     score = model.evaluate(test_X, test_y, batch_size=batch_size)

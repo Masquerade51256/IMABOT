@@ -16,13 +16,15 @@ from collections import deque
 import os
 import sys
 from BoxGraphicView import BoxGraphicView
+from configReader import ConfigReader
 
-
+conf = ConfigReader("hyperParameters.ini")
 reshape = (-1, 8, 60)
-FFT_MAX_HZ = 60     #fft频率区间
+FFT_MAX_HZ = conf.frequency_slot     #fft频率区间
 HM_SECONDS = 10  # this is approximate. Not 100%. do not depend on this.        #HM是什么意思？
 TOTAL_ITERS = HM_SECONDS*25  # ~25 iters/sec        #采样频率？
 ACTION = sys.argv[1] # THIS IS THE ACTION YOU'RE THINKING (left, none or right)
+conf.addActions(ACTION)
 # 此处在读取action后，
 # 应从hyperParameters中读取ACTIONS列表，
 # 验证其中是否已存在本action，

@@ -1,13 +1,14 @@
 import numpy as np
 import os
-import matplotlib.pyplot as plt
+from configReader import ConfigReader
 # 测试将采集到的数据（[250,8,60]）划分为带有时间片维度的数据（[n,8,50,60]）
+CONF = ConfigReader()
 
-
-def load_and_format(starting_dir="data",
-                    stride=10,
-                    time_slot=60,
-                    actions = ["left", "right", "none"]):
+def load_and_format(starting_dir,
+                    stride = CONF.data_stride,
+                    time_slot = CONF.time_slot,
+                    actions = CONF.actions
+                    ):
     training_data = {}
     for action in actions:
         if action not in training_data:
@@ -78,7 +79,10 @@ def format(raw_data,stride=1,time_slot=2):
     return data
 
 if __name__=="__main__":
-    load_and_format()
+    load_and_format(starting_dir="data",
+                    stride=10,
+                    time_slot=60,
+                    actions = ["left", "right", "none"])
 
     # all_num=12
     # channels_num=8
