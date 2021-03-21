@@ -25,7 +25,7 @@ class ConfigReader:
                 a_str+=act
                 a_str+=','
             print(a_str)
-            a_str=a_str.rstrip(',')
+            a_str=a_str.strip(',')
             print(a_str)
             self.conf.set("default", "actions", a_str)
             
@@ -41,6 +41,6 @@ if __name__ == "__main__":
     confR = ConfigReader()
     actions = confR.actions
     print(actions)
-    confR.addActions("up")
+    confR.addActions("up") 
     print(confR.batch_size)
     print(type(confR.batch_size))

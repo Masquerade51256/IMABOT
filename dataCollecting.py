@@ -63,7 +63,9 @@ for i in range(TOTAL_ITERS):  # how many iterations. Eventually this would be a 
 # plt.plot(channel_datas[0][0])
 # plt.show()
 
-datadir = "data"
+datadir = conf.training_data_dir
+if sys.argv[2] == "test":
+    datadir = conf.testing_data_dir
 if not os.path.exists(datadir):
     os.mkdir(datadir)
 
@@ -77,7 +79,7 @@ print(f"saving {ACTION} data...")
 np.save(os.path.join(actiondir, f"{int(time.time())}.npy"), np.array(channel_datas))
 print("done.")
 
-for action in ['left', 'right', 'none']:
+for action in conf.actions:
     # 此处的范围应改为从hyperParameters中读取的ACTIONS列表
     #print(f"{action}:{len(os.listdir(f'data/{action}'))}")
     print(action, sum(os.path.getsize(f'data/{action}/{f}') for f in os.listdir(f'data/{action}'))/1_000_000, "MB")

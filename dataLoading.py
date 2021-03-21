@@ -50,7 +50,7 @@ def load_and_format(starting_dir,
                 combined_data.append([data, [0, 1, 0]])
 
     np.random.shuffle(combined_data)
-    print("length:",len(combined_data))
+    print("total length:",len(combined_data))
 
     return combined_data
         
