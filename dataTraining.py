@@ -11,6 +11,9 @@ import time
 import dataLoading
 from configReader import ConfigReader
 
+def myAccuracy():
+    pass
+
 conf = ConfigReader("hyperParameters.ini")
 ACTIONS = conf.actions
 TIME_SLOT = conf.time_slot

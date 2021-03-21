@@ -4,7 +4,7 @@
 # turn left, right or just stay by your keyboard or controller
 # while this program will record your brain wave information
 
-# Keyboard & Controller can help you focus your mind on the control information
+# Keyboard & Controller can help you focus your mind keep on the control information
 # However, they can also be the confusion covering the valuable feature of EEG
 
 from pylsl import StreamInlet, resolve_stream

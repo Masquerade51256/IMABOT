@@ -1,12 +1,12 @@
+# 测试将采集到的数据（[250,8,60]）划分为带有时间片维度的数据（[n,8,50,60]）
+
 import numpy as np
 import os
 from configReader import ConfigReader
-# 测试将采集到的数据（[250,8,60]）划分为带有时间片维度的数据（[n,8,50,60]）
+
 CONF = ConfigReader()
 
 def load_and_format(starting_dir,
-                    stride = CONF.data_stride,
-                    time_slot = CONF.time_slot,
                     actions = CONF.actions
                     ):
     training_data = {}
@@ -21,7 +21,7 @@ def load_and_format(starting_dir,
             # for item in data:
                 # print(data.shape)
                 # training_data[action].append(item)
-            item=format(data,stride=stride,time_slot=time_slot)
+            item=format(data)
             # print(item.shape)
             training_data[action].append(item)
         training_data[action]=np.array(training_data[action]).reshape(-1,60,60,8)
@@ -38,16 +38,12 @@ def load_and_format(starting_dir,
 
     combined_data = []
     for action in actions:
+        act1hot = np.zeros_like(actions, int)
+        act1hot[int(np.argwhere(np.array(actions)==action))] = 1
+        act1hot = list(act1hot)
+        # print(act1hot)
         for data in training_data[action]:
-
-            if action == "left":
-                combined_data.append([data, [1, 0, 0]])        #将训练数据写成[data, tag]的记录对，其中tag使用onehot表示
-
-            elif action == "right":
-                combined_data.append([data, [0, 0, 1]])
-
-            elif action == "none":
-                combined_data.append([data, [0, 1, 0]])
+            combined_data.append([data, act1hot])        #将训练数据写成[data, tag]的记录对，其中tag使用onehot表示
 
     np.random.shuffle(combined_data)
     print("total length:",len(combined_data))
@@ -55,7 +51,7 @@ def load_and_format(starting_dir,
     return combined_data
         
 
-def format(raw_data,stride=1,time_slot=2):
+def format(raw_data,stride=CONF.data_stride,time_slot=CONF.time_slot):
     """
     raw_data: 原始数据，要求三维数据，分别表示数据量、通道数和频率
 
@@ -69,7 +65,6 @@ def format(raw_data,stride=1,time_slot=2):
     n=int((N-time_slot)/stride+1)
     # print(n)
     data=np.ones((n,time_slot,c,f))
-    # data=[]
     for i in range(0,N,stride):
         # print(i)
         if i+time_slot<raw_data.shape[0]:
@@ -79,13 +74,21 @@ def format(raw_data,stride=1,time_slot=2):
     return data
 
 if __name__=="__main__":
-    load_and_format(starting_dir="data",
-                    stride=10,
-                    time_slot=60,
-                    actions = ["left", "right", "none"])
+    # load_and_format(starting_dir="data",
+    #                 stride=10,
+    #                 time_slot=60,
+    #                 actions = ["left", "right", "none"])
 
     # all_num=12
     # channels_num=8
     # freq_slot=6
     # raw_data = np.random.randn(all_num,channels_num,freq_slot)
     # print(format(raw_data))
+
+    # actions = CONF.actions
+    # for action in actions:
+    #     act1hot = np.zeros_like(actions, int)
+    #     act1hot[int(np.argwhere(np.array(actions)==action))] = 1
+    #     act1hot = list(act1hot)
+    #     print(act1hot)
+    pass
