@@ -14,11 +14,13 @@ from configReader import ConfigReader
 def myAccuracy():
     pass
 
-conf = ConfigReader("hyperParameters.ini")
-ACTIONS = conf.actions
-TIME_SLOT = conf.time_slot
-FREQUENCY_SLOT = conf.frequency_slot
-CHANNELS_NUM = conf.channels_num
+
+# ========================== data ==========================
+CONF = ConfigReader("hyperParameters.ini")
+ACTIONS = CONF.actions
+TIME_SLOT = CONF.time_slot
+FREQUENCY_SLOT = CONF.frequency_slot
+CHANNELS_NUM = CONF.channels_num
 reshape = (-1, TIME_SLOT, FREQUENCY_SLOT, CHANNELS_NUM)  
 # 用于后续规格化，(NTFC)
 # -1表示样本数量或批数，
@@ -29,7 +31,7 @@ reshape = (-1, TIME_SLOT, FREQUENCY_SLOT, CHANNELS_NUM)
 # cpu版本的tf不支持channels_first，只支持NHWC模式，即channels_last
 
 print("creating training data")
-traindata = dataLoading.load_and_format(conf.training_data_dir)
+traindata = dataLoading.load_and_format(CONF.training_data_dir)
 train_X = []
 train_y = []
 for X, y in traindata:      ### X为训练集样本记录，即combine_data[]中的data；y为标记，即combine_data[]中用于表示“left”的[1,0,0]等 ###
@@ -37,7 +39,7 @@ for X, y in traindata:      ### X为训练集样本记录，即combine_data[]中
     train_y.append(y)       ### shape = [11250, 3]
 
 print("creating testing data")
-testdata = dataLoading.load_and_format(conf.testing_data_dir)
+testdata = dataLoading.load_and_format(CONF.testing_data_dir)
 test_X = []
 test_y = []
 for X, y in testdata:
@@ -55,9 +57,9 @@ test_X = np.array(test_X).reshape(reshape)
 train_y = np.array(train_y)
 test_y = np.array(test_y)
 
+# ========================== model design ==========================
 ### 选择模型 ###
 model = Sequential()
-
 ### 构建网络 ###
 # model.add(Conv1D(64, (3), input_shape=train_X.shape[1:]))       ### 输入层 input_shape = [8, 60]
 # 上面一行为模型增加了一个Conv1D作为第一个层，即输入层
@@ -95,12 +97,12 @@ model.compile(loss='categorical_crossentropy',      ### 损失函数选用交叉
               optimizer='adam',     ###优化算法，即如何调整参数
               metrics=['accuracy'])     ###指标？
 
-
+# ========================== training ==========================
 ### 训练 ###
 # epochs 训练次数，一个epoch指将样本中的数据全部学习了一次
-epochs = conf.epochs
+epochs = CONF.epochs
 # batch_size 对样本总数进行分批，以批为单位进行学习，而不是单个数据。由于之前步骤中已经将数据打乱，等效于此处随机分批
-batch_size = conf.batch_size
+batch_size = CONF.batch_size
 for epoch in range(epochs):
     model.fit(train_X, train_y, batch_size=batch_size, epochs=1, validation_data=(test_X, test_y))
     score = model.evaluate(test_X, test_y, batch_size=batch_size)
