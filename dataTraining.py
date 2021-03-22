@@ -11,7 +11,14 @@ import time
 import dataLoading
 from configReader import ConfigReader
 
-def myAccuracy():
+def myAccuracy(model:tf.keras.Model, test_X, test_y):
+    total = len(test_X)
+    correct = 0
+    for i in range(total):
+        out = model.predict(test_X[i])
+        if out == test_y[i]:
+            correct += 1
+
     pass
 
 

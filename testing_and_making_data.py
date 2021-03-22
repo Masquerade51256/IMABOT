@@ -10,7 +10,6 @@ import random
 import tensorflow as tf
 import sys
 
-
 reshape = (-1, 8, 60)
 FFT_MAX_HZ = 60     #fft频率区间
 
@@ -24,9 +23,7 @@ ACTION = sys.argv[2] # THIS IS THE ACTION YOU'RE THINKING (left, none or right)
 if BOX_MOVE == 'model':
     MODEL_NAME = os.path.join('new_models',sys.argv[3])  # your model path here. 
     model = tf.keras.models.load_model(MODEL_NAME)
-    model.predict( np.zeros((32,8,60)).reshape(reshape) )         #predict函数有什么作用？此处D1取值32是什么意义？
-
-
+    model.predict(np.zeros((32,8,60)).reshape(reshape))         #predict函数有什么作用？此处D1取值32是什么意义？
 
 last_print = time.time()
 fps_counter = deque(maxlen=150)
@@ -79,8 +76,6 @@ for i in range(TOTAL_ITERS):  # how many iterations. Eventually this would be a 
 
     cv2.imshow('', env)
     cv2.waitKey(1)
-
-    
 
     if BOX_MOVE == "random":
         move = random.choice([-1,0,1])

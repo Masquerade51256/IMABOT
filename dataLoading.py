@@ -85,10 +85,10 @@ if __name__=="__main__":
     # raw_data = np.random.randn(all_num,channels_num,freq_slot)
     # print(format(raw_data))
 
-    # actions = CONF.actions
-    # for action in actions:
-    #     act1hot = np.zeros_like(actions, int)
-    #     act1hot[int(np.argwhere(np.array(actions)==action))] = 1
-    #     act1hot = list(act1hot)
-    #     print(act1hot)
+    actions = CONF.actions
+    for action in actions:
+        act1hot = np.zeros_like(actions, int)
+        act1hot[int(np.argwhere(np.array(actions)==action))] = 1
+        act1hot = list(act1hot)
+        print(act1hot,action)
     pass
