@@ -7,8 +7,8 @@ from configReader import ConfigReader
 CONF = ConfigReader()
 
 def load_and_format(starting_dir,
-                    actions = CONF.actions
-                    ):
+                    actions = CONF.actions,
+                    tag_flag = "onehot"):
     training_data = {}
     for action in actions:
         if action not in training_data:
@@ -38,12 +38,19 @@ def load_and_format(starting_dir,
 
     combined_data = []
     for action in actions:
-        act1hot = np.zeros_like(actions, int)
-        act1hot[int(np.argwhere(np.array(actions)==action))] = 1
-        act1hot = list(act1hot)
-        # print(act1hot)
+        if tag_flag == "onehot":
+            act1hot = np.zeros_like(actions, int)
+            act1hot[int(np.argwhere(np.array(actions)==action))] = 1
+            act1hot = list(act1hot)
+            # print(act1hot)
+            tag = act1hot
+        elif tag_flag == "std_str":
+            tag = action
+        elif tag_flag == "map3_str":
+            tag = action.split("_")[0]
+            
         for data in training_data[action]:
-            combined_data.append([data, act1hot])        #将训练数据写成[data, tag]的记录对，其中tag使用onehot表示
+            combined_data.append([data, tag])        #将训练数据写成[data, tag]的记录对，其中tag使用onehot表示
 
     np.random.shuffle(combined_data)
     print("total length:",len(combined_data))
@@ -85,10 +92,19 @@ if __name__=="__main__":
     # raw_data = np.random.randn(all_num,channels_num,freq_slot)
     # print(format(raw_data))
 
-    actions = CONF.actions
-    for action in actions:
-        act1hot = np.zeros_like(actions, int)
-        act1hot[int(np.argwhere(np.array(actions)==action))] = 1
-        act1hot = list(act1hot)
-        print(act1hot,action)
+    # actions = CONF.actions
+    # tag_flag = "map3_tag"
+    # for action in actions:
+    #     if tag_flag == "onehot_tag":
+    #         act1hot = np.zeros_like(actions, int)
+    #         act1hot[int(np.argwhere(np.array(actions)==action))] = 1
+    #         act1hot = list(act1hot)
+    #         tag = act1hot
+    #         print(tag)
+    #     elif tag_flag == "str_tag":
+    #         tag = action
+    #         print(tag)
+    #     elif tag_flag == "map3_tag":
+    #         tag = action.split("_")[0]
+    #         print(tag)
     pass

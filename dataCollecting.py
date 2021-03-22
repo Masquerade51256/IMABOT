@@ -18,18 +18,18 @@ import sys
 from BoxGraphicView import BoxGraphicView
 from configReader import ConfigReader
 
-conf = ConfigReader("hyperParameters.ini")
+conf = ConfigReader("hyperParameters.ini", "9c")  #数据总是以9分类形式录制
 reshape = (-1, 8, 60)
 FFT_MAX_HZ = conf.frequency_slot     #fft频率区间
 HM_SECONDS = 10  # this is approximate. Not 100%. do not depend on this.        #HM是什么意思？
 TOTAL_ITERS = HM_SECONDS*25  # ~25 iters/sec        #采样频率？
 ACTION = sys.argv[1] # THIS IS THE ACTION YOU'RE THINKING (left, none or right)
-conf.addActions(ACTION)
 # 此处在读取action后，
 # 应从hyperParameters中读取ACTIONS列表，
 # 验证其中是否已存在本action，
 # 如不存在，应将其添加
 ## 不将action限定在left,right,none是打算通过提高分类数量来提高最终准确率
+conf.addActions(ACTION)
 
 last_print = time.time()
 fps_counter = deque(maxlen=150)
@@ -63,23 +63,35 @@ for i in range(TOTAL_ITERS):  # how many iterations. Eventually this would be a 
 # plt.plot(channel_datas[0][0])
 # plt.show()
 
-datadir = conf.training_data_dir
-if sys.argv[2] == "test":
+datausage = sys.argv[2]
+if datausage == "train":
+    datadir = conf.training_data_dir
+    datadir_3c = conf.getAttr("3c", "training_data_dir")
+elif datausage == "test":
     datadir = conf.testing_data_dir
+    datadir_3c = conf.getAttr("3c", "testing_data_dir")
+
 if not os.path.exists(datadir):
     os.mkdir(datadir)
+if not os.path.exists(datadir_3c):
+    os.mkdir(datadir_3c)
 
 actiondir = f"{datadir}/{ACTION}"
+ACTION_3c = ACTION.split("_")[0]
+actiondir_3c = f"{datadir}/{ACTION_3c}"
 if not os.path.exists(actiondir):
     os.mkdir(actiondir)
+if not os.path.exists(actiondir_3c):
+    os.mkdir(actiondir_3c)
 
 print(len(channel_datas))
 
 print(f"saving {ACTION} data...")
 np.save(os.path.join(actiondir, f"{int(time.time())}.npy"), np.array(channel_datas))
+np.save(os.path.join(actiondir_3c, f"{int(time.time())}.npy"), np.array(channel_datas))
 print("done.")
 
 for action in conf.actions:
     # 此处的范围应改为从hyperParameters中读取的ACTIONS列表
-    #print(f"{action}:{len(os.listdir(f'data/{action}'))}")
-    print(action, sum(os.path.getsize(f'data/{action}/{f}') for f in os.listdir(f'data/{action}'))/1_000_000, "MB")
+    print(f"{action}:{len(os.listdir(f'{actiondir}/{action}'))}")
+    # print(action, sum(os.path.getsize(f'{datadir}/{action}/{f}') for f in os.listdir(f'{datadir}/{action}'))/1_000_000, "MB")

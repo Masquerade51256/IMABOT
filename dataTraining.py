@@ -11,24 +11,26 @@ import time
 import dataLoading
 from configReader import ConfigReader
 
-def myAccuracy(model:tf.keras.Model, test_X, test_y):
+CONF = ConfigReader("hyperParameters.ini")
+ACTIONS = CONF.actions
+TIME_SLOT = CONF.time_slot
+FREQUENCY_SLOT = CONF.frequency_slot
+CHANNELS_NUM = CONF.channels_num
+RESHAPE = (-1, TIME_SLOT, FREQUENCY_SLOT, CHANNELS_NUM)
+OUT_SIZE = len(ACTIONS)
+
+def map3Accuracy(model:tf.keras.Model, test_X, test_y):
     total = len(test_X)
     correct = 0
     for i in range(total):
         out = model.predict(test_X[i])
-        if out == test_y[i]:
+        if ACTIONS[int(np.argwhere(out==1))].split("_")[0] == test_y[i]:
             correct += 1
 
     pass
 
 
 # ========================== data ==========================
-CONF = ConfigReader("hyperParameters.ini")
-ACTIONS = CONF.actions
-TIME_SLOT = CONF.time_slot
-FREQUENCY_SLOT = CONF.frequency_slot
-CHANNELS_NUM = CONF.channels_num
-reshape = (-1, TIME_SLOT, FREQUENCY_SLOT, CHANNELS_NUM)  
 # 用于后续规格化，(NTFC)
 # -1表示样本数量或批数，
 # 500为时间区间0~50ms，（不确定此处单位是否为ms，需验证数据采集代码），后划分数据时应以此为参照
@@ -58,8 +60,8 @@ print(len(test_X))
 
 
 print(np.array(train_X).shape)
-train_X = np.array(train_X).reshape(reshape)
-test_X = np.array(test_X).reshape(reshape)
+train_X = np.array(train_X).reshape(RESHAPE)
+test_X = np.array(test_X).reshape(RESHAPE)
 
 train_y = np.array(train_y)
 test_y = np.array(test_y)
@@ -96,7 +98,7 @@ model.add(Flatten())
 
 model.add(Dense(512))   ### 全连接层
 
-model.add(Dense(3))     ### 输出层，3维表示结果倾向left、none或者right
+model.add(Dense(OUT_SIZE))     ### 输出层，3维表示结果倾向left、none或者right
 model.add(Activation('softmax'))        ###分类问题学习时输出层激活函数常选用softmax函数（回归问题常选用恒等函数
 
 ### 编译 ###
