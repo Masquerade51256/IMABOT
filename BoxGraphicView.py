@@ -48,7 +48,7 @@ class BoxGraphicView:
         elif direction == 'right':
             self.square['x1']+=step
             self.square['x2']+=step
-        elif direction == 'random':
+        else:
             move = random.choice([-1,0,1])
             self.square['x1']+=(move*step)
             self.square['x2']+=(move*step)

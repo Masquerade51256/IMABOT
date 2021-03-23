@@ -15,6 +15,7 @@ from matplotlib import style
 from collections import deque
 import os
 import sys
+import winsound
 from BoxGraphicView import BoxGraphicView
 from configReader import ConfigReader
 
@@ -56,8 +57,8 @@ for i in range(TOTAL_ITERS):  # how many iterations. Eventually this would be a 
     cur_raw_hz = 1/(sum(fps_counter)/len(fps_counter))
     print(cur_raw_hz)
 
-    box.move('random',1)
-    # box.move(ACTION,1)
+    box.move('random',2)
+    # box.move(ACTION.split("_")[0],1)
     channel_datas.append(channel_data)
 
 # plt.plot(channel_datas[0][0])
@@ -78,7 +79,7 @@ if not os.path.exists(datadir_3c):
 
 actiondir = f"{datadir}/{ACTION}"
 ACTION_3c = ACTION.split("_")[0]
-actiondir_3c = f"{datadir}/{ACTION_3c}"
+actiondir_3c = f"{datadir_3c}/{ACTION_3c}"
 if not os.path.exists(actiondir):
     os.mkdir(actiondir)
 if not os.path.exists(actiondir_3c):
@@ -90,8 +91,8 @@ print(f"saving {ACTION} data...")
 np.save(os.path.join(actiondir, f"{int(time.time())}.npy"), np.array(channel_datas))
 np.save(os.path.join(actiondir_3c, f"{int(time.time())}.npy"), np.array(channel_datas))
 print("done.")
-
+winsound.Beep(550,500)
 for action in conf.actions:
     # 此处的范围应改为从hyperParameters中读取的ACTIONS列表
-    print(f"{action}:{len(os.listdir(f'{actiondir}/{action}'))}")
+    print(f"{action}:{len(os.listdir(f'{datadir}/{action}'))}")
     # print(action, sum(os.path.getsize(f'{datadir}/{action}/{f}') for f in os.listdir(f'{datadir}/{action}'))/1_000_000, "MB")
