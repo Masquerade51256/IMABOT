@@ -83,10 +83,11 @@ def format(raw_data,stride=CONF.data_stride,time_slot=CONF.time_slot):
     c=raw_data.shape[1]
     f=raw_data.shape[2]
     n=int((N-time_slot)/stride+1)
+    # print(N, c, f, n)
     data=np.ones((n,time_slot,c,f))
     for i in range(0,N,stride):
-        # print(i)
-        if i+time_slot<raw_data.shape[0]:
+        # print(i+time_slot, raw_data.shape[0])
+        if i+time_slot<=raw_data.shape[0]:
             data[int(i/stride)]=raw_data[np.arange(i,i+time_slot)]
     data=data.transpose(0,1,3,2)
     # print(data.shape)

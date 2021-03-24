@@ -12,7 +12,7 @@ from BoxGraphicView import BoxGraphicView
 from configReader import ConfigReader
 import dataLoading
 
-CONF = ConfigReader("hyperParameters.ini", "9c")
+CONF = ConfigReader("hyperParameters.ini")
 RESHAPE = (-1, 8, 60)
 FFT_MAX_HZ = CONF.frequency_slot
 HM_SECONDS = 10
@@ -21,7 +21,7 @@ ACTIONS = CONF.actions
 CHANNELS_NUM = CONF.channels_num
 TIME_SLOT = CONF.time_slot
 
-MODEL_NAME = os.path.join(CONF.models_dir,"37.78-acc-64x3-batch-norm-9epoch-1616551090-loss-3.48.model")
+MODEL_NAME = os.path.join(CONF.models_dir,"56.6-acc-64x3-batch-norm-9epoch-1616553967-loss-1.77.model")
 model = tf.keras.models.load_model(MODEL_NAME)
 model.predict(np.zeros((32,60,60,8)))
 
@@ -54,12 +54,14 @@ for i in range(TOTAL_ITERS):  # how many iterations. Eventually this would be a 
     if l >=TIME_SLOT:
         head = l-TIME_SLOT
         raw_data = np.array(channel_datas).reshape(RESHAPE)[head:]
-        print(raw_data)
-        input_data = dataLoading.format(raw_data)   ####此句有错，返回全1数组
-        print(input_data)
+        # print(raw_data)
+        input_data = dataLoading.format(raw_data)
+        # print(input_data)
         output_data = model.predict(input_data)
-        # print(output_data)
+        print(output_data)
         output_act = ACTIONS[np.argmax(output_data)]
-        # print(output_act)
+        print(output_act)
         act = output_act.split("_")[0]
         box.move(act,1)
+    else:
+        box.move("random",1)
