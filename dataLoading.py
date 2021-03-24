@@ -29,9 +29,10 @@ def load_and_format(starting_dir,
 
     lengths = [len(training_data[action]) for action in actions]
     print(lengths)
-    for action in actions:
-        np.random.shuffle(training_data[action])  # note that regular shuffle is GOOF af
-        training_data[action] = training_data[action][:min(lengths)]        ## 规格化,将三个标签的长度截取成相同，保证训练样本中的比例为1:1:1 ###
+    if CONF.getAttr("default", "cut_flag") == "cut":
+        for action in actions:
+            np.random.shuffle(training_data[action])  # note that regular shuffle is GOOF af
+            training_data[action] = training_data[action][:min(lengths)]        ## 规格化,将三个标签的长度截取成相同，保证训练样本中的比例为1:1:1 ###
 
     lengths = [len(training_data[action]) for action in actions]
     print(lengths)

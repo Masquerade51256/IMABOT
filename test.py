@@ -48,6 +48,6 @@ if __name__ == "__main__":
     test_X = np.array(test_X).reshape(reshape)
     test_y = np.array(test_y)
 
-    MODEL_NAME = os.path.join('new_models',"34.17-acc-64x3-batch-norm-9epoch-1616395610-loss-2.41.model")  # your model path here. 
+    MODEL_NAME = os.path.join(CONF.models_dir,"37.78-acc-64x3-batch-norm-9epoch-1616551090-loss-3.48.model")
     model = tf.keras.models.load_model(MODEL_NAME)
     print(map3Accuracy(model, test_X, test_y))

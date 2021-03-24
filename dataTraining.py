@@ -116,7 +116,7 @@ for epoch in range(epochs):
     model.fit(train_X, train_y, batch_size=batch_size, epochs=1, validation_data=(test_X, test_y))
     score = model.evaluate(test_X, test_y, batch_size=batch_size)
     #print(score)
-    MODEL_NAME = f"new_models/{round(score[1]*100,2)}-acc-64x3-batch-norm-{epoch}epoch-{int(time.time())}-loss-{round(score[0],2)}.model"
+    MODEL_NAME = f"{CONF.models_dir}/{round(score[1]*100,2)}-acc-64x3-batch-norm-{epoch}epoch-{int(time.time())}-loss-{round(score[0],2)}.model"
     model.save(MODEL_NAME)
 print("saved:")
 print(MODEL_NAME)
