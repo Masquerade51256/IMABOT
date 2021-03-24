@@ -16,48 +16,19 @@ ACTIONS = CONF.actions
 TIME_SLOT = CONF.time_slot
 FREQUENCY_SLOT = CONF.frequency_slot
 CHANNELS_NUM = CONF.channels_num
-RESHAPE = (-1, TIME_SLOT, FREQUENCY_SLOT, CHANNELS_NUM)
-OUT_SIZE = len(ACTIONS)
-
-def map3Accuracy(model:tf.keras.Model, test_X, test_y):
-    total = len(test_X)
-    correct = 0
-    for i in range(total):
-        out = model.predict(test_X[i])
-        if ACTIONS[int(np.argwhere(out==1))].split("_")[0] == test_y[i]:
-            correct += 1
-
-    pass
-
-
-# ========================== data ==========================
-# 用于后续规格化，(NTFC)
-# -1表示样本数量或批数，
-# 500为时间区间0~50ms，（不确定此处单位是否为ms，需验证数据采集代码），后划分数据时应以此为参照
-# 60为频率区间0~60hz，
-# 8为通道数，由数据采集设备规格决定，
+RESHAPE = (-1, TIME_SLOT, FREQUENCY_SLOT, CHANNELS_NUM) 
+# 用于后续规格化，(NTFC)===
 # 由于后续keras中卷积层默认通道数在最后一个维度上，即channels_last，故此处需要将8放在最后
 # cpu版本的tf不支持channels_first，只支持NHWC模式，即channels_last
+OUT_SIZE = len(ACTIONS) #输出规格，与分类数有关
 
+# ========================== data =======================
 print("creating training data")
-traindata = dataLoading.load_and_format(CONF.training_data_dir)
-train_X = []
-train_y = []
-for X, y in traindata:      ### X为训练集样本记录，即combine_data[]中的data；y为标记，即combine_data[]中用于表示“left”的[1,0,0]等 ###
-    train_X.append(X)       ### shape = [11250(250*15*3), 8, 60]
-    train_y.append(y)       ### shape = [11250, 3]
-
-print("creating testing data")
-testdata = dataLoading.load_and_format(CONF.testing_data_dir)
-test_X = []
-test_y = []
-for X, y in testdata:
-    test_X.append(X)
-    test_y.append(y)
-
+train_X, train_y = dataLoading.load_and_format(CONF.training_data_dir)
 print(len(train_X))
+print("creating testing data")
+test_X, test_y = dataLoading.load_and_format(CONF.testing_data_dir)
 print(len(test_X))
-
 
 print(np.array(train_X).shape)
 train_X = np.array(train_X).reshape(RESHAPE)

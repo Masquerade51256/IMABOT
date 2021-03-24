@@ -1,6 +1,4 @@
 import configparser
-import os
-
 
 class ConfigReader:
     def __init__(self, confPath="hyperParameters.ini",cfm = "default"):
@@ -41,6 +39,17 @@ class ConfigReader:
     
     def getAttr(self, section, item):
         return self.conf[section][item]
+    
+    def setMode(self, cfm):
+        if self.confMode == cfm:
+            return 0
+        else:
+            self.confMode = cfm
+            self.conf.set("default", "mode", self.confMode)
+            with open('hyperParameters.ini', 'w') as configfile:
+                    self.conf.write(configfile)
+            self.__init__()
+            return 1
 
     # def setMode(self, mode):
     #     if self.confMode != mode:

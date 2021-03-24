@@ -1,14 +1,19 @@
 # 测试将采集到的数据（[250,8,60]）划分为带有时间片维度的数据（[n,8,50,60]）
-
 import numpy as np
 import os
+
+from tensorflow.python.keras.utils.generic_utils import default
 from configReader import ConfigReader
 
 CONF = ConfigReader()
 
 def load_and_format(starting_dir,
-                    actions = CONF.actions,
-                    tag_flag = "onehot"):
+                    tag_flag = "onehot",
+                    cfm = "default"):
+    if cfm != "default":
+        CONF.setMode(cfm)
+    
+    actions = CONF.actions
     training_data = {}
     for action in actions:
         if action not in training_data:
@@ -56,7 +61,13 @@ def load_and_format(starting_dir,
     np.random.shuffle(combined_data)
     print("total length:",len(combined_data))
 
-    return combined_data
+    data_X = []
+    data_y = []
+    for X, y in combined_data:
+        data_X.append(X)
+        data_y.append(y)
+
+    return data_X, data_y
         
 
 def format(raw_data,stride=CONF.data_stride,time_slot=CONF.time_slot):
