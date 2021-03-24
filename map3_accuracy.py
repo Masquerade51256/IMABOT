@@ -21,7 +21,7 @@ def map3Accuracy(model:tf.keras.Model, test_X, test_y):
     for i in range(total):
         # print(test_X[i].shape)
         out = model.predict(test_X[i].reshape(RESHAPE))
-        print(out)
+        # print(out)
         out_act = ACTIONS[np.argmax(out)].split("_")[0]
         if out_act == test_y[i]:
             correct += 1

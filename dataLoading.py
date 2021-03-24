@@ -72,7 +72,8 @@ def load_and_format(starting_dir,
 
 def format(raw_data,stride=CONF.data_stride,time_slot=CONF.time_slot):
     """
-    raw_data: 原始数据，要求三维数据，分别表示数据量、通道数和频率
+    raw_data: 原始数据，要求三维数据，分别表示数据量、通道数和频率,
+    其中N要大于等于time_slot
 
     stride:
     
@@ -82,7 +83,6 @@ def format(raw_data,stride=CONF.data_stride,time_slot=CONF.time_slot):
     c=raw_data.shape[1]
     f=raw_data.shape[2]
     n=int((N-time_slot)/stride+1)
-    # print(n)
     data=np.ones((n,time_slot,c,f))
     for i in range(0,N,stride):
         # print(i)
