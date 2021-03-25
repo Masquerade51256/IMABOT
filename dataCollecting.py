@@ -25,6 +25,7 @@ FFT_MAX_HZ = conf.frequency_slot     #fft频率区间
 HM_SECONDS = 10  # this is approximate. Not 100%. do not depend on this.        #HM是什么意思？
 TOTAL_ITERS = HM_SECONDS*25  # ~25 iters/sec        #采样频率？
 ACTION = sys.argv[1] # THIS IS THE ACTION YOU'RE THINKING (left, none or right)
+CHANNELS_NUM = conf.channels_num
 # 此处在读取action后，
 # 应从hyperParameters中读取ACTIONS列表，
 # 验证其中是否已存在本action，
@@ -35,10 +36,10 @@ conf.addActions(ACTION)
 last_print = time.time()
 fps_counter = deque(maxlen=150)
 
-# first resolve an EEG stream on the lab network
+# 接收推流数据
 print("looking for an EEG stream...")
 streams = resolve_stream('type', 'EEG')
-# create a new inlet to read from the stream
+# 创建inlet读取数据
 inlet = StreamInlet(streams[0])
 
 box = BoxGraphicView()
@@ -46,9 +47,9 @@ box = BoxGraphicView()
 correct = 0 
 channel_datas = []
 
-for i in range(TOTAL_ITERS):  # how many iterations. Eventually this would be a while True
+for i in range(TOTAL_ITERS):
     channel_data = []
-    for i in range(8): # each of the 8 channels here
+    for i in range(CHANNELS_NUM): # each of the 8 channels here
         sample, timestamp = inlet.pull_sample()
         channel_data.append(sample[:FFT_MAX_HZ])    #频率上限
 

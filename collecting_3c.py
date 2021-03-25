@@ -1,5 +1,4 @@
 from pylsl import StreamInlet, resolve_stream
-import tensorflow as tf
 import numpy as np
 import time
 import matplotlib.pyplot as plt
@@ -10,34 +9,32 @@ import sys
 import winsound
 from BoxGraphicView import BoxGraphicView
 from configReader import ConfigReader
-import dataLoading
 
-CONF = ConfigReader("hyperParameters.ini")
-RESHAPE = (-1, 8, 60)
-FFT_MAX_HZ = CONF.frequency_slot
+conf = ConfigReader("hyperParameters.ini", "3c")
+reshape = (-1, 8, 60)
+FFT_MAX_HZ = conf.frequency_slot
 HM_SECONDS = 10
 TOTAL_ITERS = HM_SECONDS*25
-ACTIONS = CONF.actions
-CHANNELS_NUM = CONF.channels_num
-TIME_SLOT = CONF.time_slot
-
-MODEL_NAME = os.path.join(CONF.models_dir,"56.6-acc-64x3-batch-norm-9epoch-1616553967-loss-1.77.model")
-model = tf.keras.models.load_model(MODEL_NAME)
-model.predict(np.zeros((32,60,60,8)))
-
+ACTION = sys.argv[1]
+CHANNELS_NUM = conf.channels_num
+conf.addActions(ACTION)
 
 last_print = time.time()
 fps_counter = deque(maxlen=150)
 
+# 接收推流数据
 print("looking for an EEG stream...")
 streams = resolve_stream('type', 'EEG')
+# 创建inlet读取数据
 inlet = StreamInlet(streams[0])
-
+#创建视图
 box = BoxGraphicView()
 
+total = 0
+correct = 0 
 channel_datas = []
 
-for i in range(TOTAL_ITERS):  # how many iterations. Eventually this would be a while True
+for i in range(TOTAL_ITERS):
     channel_data = []
     for i in range(CHANNELS_NUM): # 8 channels
         sample, timestamp = inlet.pull_sample()
@@ -63,5 +60,36 @@ for i in range(TOTAL_ITERS):  # how many iterations. Eventually this would be a 
         # print(output_act)
         act = output_act.split("_")[0]
         box.move(act,1)
+        if act == ACTION:
+            correct += 1
+        total += 1
     else:
         box.move("random",1)
+
+# plt.plot(channel_datas[0][0])
+# plt.show()
+
+datausage = sys.argv[2]
+if datausage == "train":
+    datadir_3c = conf.training_data_dir
+    datadir_date = time.strftime("%Y%m%d", time.localtime())+"_train_data"
+elif datausage == "test":
+    datadir_3c = conf.testing_data_dir
+
+if not os.path.exists(datadir_3c):
+    os.mkdir(datadir_3c)
+
+ACTION_3c = ACTION.split("_")[0]
+actiondir_3c = f"{datadir_3c}/{ACTION_3c}"
+if not os.path.exists(actiondir_3c):
+    os.mkdir(actiondir_3c)
+
+print(len(channel_datas))
+
+print(f"saving {ACTION} data...")
+np.save(os.path.join(actiondir_3c, f"{int(time.time())}.npy"), np.array(channel_datas))
+print("done.")
+# winsound.Beep(550,500)
+for action in conf.actions:
+    print(f"{action}:{len(os.listdir(f'{datadir_3c}/{action}'))}")
+print(ACTION, correct/total)
