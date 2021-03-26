@@ -1,6 +1,6 @@
 from collections import deque
 from pylsl import StreamInlet, resolve_stream
-from BoxGraphicView import BoxGraphicView
+from boxGraphicView import BoxGraphicView
 from configReader import ConfigReader
 import numpy as np
 import tensorflow as tf

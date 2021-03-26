@@ -8,7 +8,7 @@ from collections import deque
 import os
 import sys
 import winsound
-from BoxGraphicView import BoxGraphicView
+from boxGraphicView import BoxGraphicView
 from configReader import ConfigReader
 import dataLoading
 
