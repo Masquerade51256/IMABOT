@@ -21,7 +21,7 @@ ACTIONS = CONF.actions
 CHANNELS_NUM = CONF.channels_num
 TIME_SLOT = CONF.time_slot
 
-MODEL_NAME = os.path.join(CONF.models_dir,"56.6-acc-64x3-batch-norm-9epoch-1616553967-loss-1.77.model")
+MODEL_NAME = os.path.join(CONF.models_dir,"71.57-acc-64x3-batch-norm-6epoch-1616749634-loss-0.64.model")
 model = tf.keras.models.load_model(MODEL_NAME)
 model.predict(np.zeros((32,60,60,8)))
 
@@ -58,9 +58,8 @@ for i in range(TOTAL_ITERS):  # how many iterations. Eventually this would be a 
         input_data = dataLoading.format(raw_data)
         # print(input_data)
         output_data = model.predict(input_data)
-        # print(output_data)
         output_act = ACTIONS[np.argmax(output_data)]
-        # print(output_act)
+        print(output_act, output_data)
         act = output_act.split("_")[0]
         box.move(act,1)
     else:

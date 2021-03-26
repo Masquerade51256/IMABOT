@@ -6,8 +6,9 @@ from tensorflow.python.keras.utils.generic_utils import default
 from configReader import ConfigReader
 
 CONF = ConfigReader()
+RESHAPE = (-1, CONF.time_slot, CONF.frequency_slot, CONF.channels_num)
 
-def load_and_format(starting_dir,
+def load(starting_dir,
                     tag_flag = "onehot",
                     cfm = "default"):
     if cfm != "default":
@@ -60,13 +61,29 @@ def load_and_format(starting_dir,
 
     np.random.shuffle(combined_data)
     print("total length:",len(combined_data))
+    return combined_data
 
+
+
+def load_and_format(starting_dir,
+                    tag_flag = "onehot",
+                    cfm = "default"):
+    combined_data = load(starting_dir,tag_flag,cfm)
     data_X = []
     data_y = []
     for X, y in combined_data:
         data_X.append(X)
         data_y.append(y)
+    return data_X, data_y
 
+def tag_divide(combined_data):
+    data_X = []
+    data_y = []
+    for X, y in combined_data:
+        data_X.append(X)
+        data_y.append(y)
+    data_X = np.array(data_X,"float16").reshape(RESHAPE)
+    data_y = np.array(data_y)
     return data_X, data_y
         
 
