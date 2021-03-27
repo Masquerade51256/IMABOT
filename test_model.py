@@ -21,7 +21,7 @@ ACTIONS = CONF.actions
 CHANNELS_NUM = CONF.channels_num
 TIME_SLOT = CONF.time_slot
 
-MODEL_NAME = os.path.join(CONF.models_dir,"71.57-acc-64x3-batch-norm-6epoch-1616749634-loss-0.64.model")
+MODEL_NAME = os.path.join(CONF.models_dir,"78.48-acc-64x3-batch-norm-9epoch-1616816408-loss-0.51.model")
 model = tf.keras.models.load_model(MODEL_NAME)
 model.predict(np.zeros((32,60,60,8)))
 

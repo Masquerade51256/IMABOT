@@ -82,7 +82,7 @@ def tag_divide(combined_data):
     for X, y in combined_data:
         data_X.append(X)
         data_y.append(y)
-    data_X = np.array(data_X,"float16").reshape(RESHAPE)
+    data_X = np.array(data_X).reshape(RESHAPE)
     data_y = np.array(data_y)
     return data_X, data_y
         

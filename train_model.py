@@ -6,6 +6,7 @@ from tensorflow.keras.layers import Conv2D
 from tensorflow.keras.layers import MaxPooling2D, BatchNormalization
 import time
 import dataLoading
+import gc
 from configReader import ConfigReader
 
 CONF = ConfigReader("hyperParameters.ini")
@@ -14,49 +15,39 @@ TIME_SLOT = CONF.time_slot
 FREQUENCY_SLOT = CONF.frequency_slot
 CHANNELS_NUM = CONF.channels_num
 RESHAPE = (-1, TIME_SLOT, FREQUENCY_SLOT, CHANNELS_NUM) 
-# 用于后续规格化，(NTFC)===
+# 用于后续规格化，(NTFC)
 # 由于后续keras中卷积层默认通道数在最后一个维度上，即channels_last，故此处需要将8放在最后
 # cpu版本的tf不支持channels_first，只支持NHWC模式，即channels_last
 OUT_SIZE = len(ACTIONS) #输出规格，与分类数有关
 
 # ========================== data create =======================
-# print("creating training data")
-# train_X, train_y = dataLoading.load_and_format(CONF.training_data_dir)
-# print(len(train_X))
-# print("creating testing data")
-# test_X, test_y = dataLoading.load_and_format(CONF.testing_data_dir)
-# print(len(test_X))
-
-# print(np.array(train_X).shape)
-# train_X = np.array(train_X).reshape(RESHAPE)
-# test_X = np.array(test_X).reshape(RESHAPE)
-
-# train_y = np.array(train_y)
-# test_y = np.array(test_y)
 
 print("Loading data...")
 all_data = dataLoading.load(CONF.getAttr("3c", "data_dir"))
 print("Done.")
 data_size = len(all_data)
 print("all data: ", data_size)
+
 print("Making test data...")
 test_size = int(data_size*0.2)
-test_data, rest_data = np.split(np.array(all_data),[test_size])
-all_data = []
+test_data, train_data = np.split(np.array(all_data,dtype=object),[test_size])
+del(all_data)
+gc.collect()
 test_X, test_y = dataLoading.tag_divide(test_data)
+del(test_data)
+gc.collect()
 print("Done.")
-print("Making train and validate data...")
-val_size = int(data_size*0.2)
-val_data, train_data = np.split(rest_data,[val_size])
-val_X, val_y = dataLoading.tag_divide(val_data)
-train_X, train_y = dataLoading.tag_divide(train_data)
-print("Done.")
-print("test data", len(test_data))
-print("train data", len(val_data))
-print("validate data", len(train_data))
+print("test data: ", test_X.shape)
 
+print("Making train data...")
+train_X, train_y = dataLoading.tag_divide(train_data)
+del(train_data)
+gc.collect()
+print("Done.")
+print("train data: ", train_X.shape)
 
 # ========================== model design ==========================
+
 ### 选择模型类型 ###
 model = Sequential()
 
@@ -107,15 +98,15 @@ model.compile(loss='categorical_crossentropy',
               ###指标？
 
 # ========================== model train ==========================
+
 ### 训练 ###
 # epochs 训练次数，一个epoch指将样本中的数据全部学习了一次
 epochs = CONF.epochs
 # batch_size 对样本总数进行分批，以批为单位进行学习，而不是单个数据。由于之前步骤中已经将数据打乱，等效于此处随机分批
 batch_size = CONF.batch_size
-for epoch in range(epochs):
-    model.fit(train_X, train_y, batch_size=batch_size, epochs=1, validation_data=(val_X, val_y))
-    score = model.evaluate(test_X, test_y, batch_size=batch_size)
-    MODEL_NAME = f"{CONF.models_dir}/{round(score[1]*100,2)}-acc-64x3-batch-norm-{epoch}epoch-{int(time.time())}-loss-{round(score[0],2)}.model"
-    model.save(MODEL_NAME)
+model.fit(train_X, train_y, batch_size=batch_size, epochs=epochs, validation_split=0.25)
+score = model.evaluate(test_X, test_y, batch_size=batch_size)
+MODEL_NAME = f"{CONF.models_dir}/{round(score[1]*100,2)}-acc-64x3-batch-norm-{int(time.time())}-loss-{round(score[0],2)}.model"
+model.save(MODEL_NAME)
 print("saved:")
 print(MODEL_NAME)
