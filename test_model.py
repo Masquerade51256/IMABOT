@@ -2,12 +2,8 @@ from pylsl import StreamInlet, resolve_stream
 import tensorflow as tf
 import numpy as np
 import time
-import matplotlib.pyplot as plt
-from matplotlib import style
 from collections import deque
 import os
-import sys
-import winsound
 from boxGraphicView import BoxGraphicView
 from configReader import ConfigReader
 import dataLoading
@@ -21,7 +17,8 @@ ACTIONS = CONF.actions
 CHANNELS_NUM = CONF.channels_num
 TIME_SLOT = CONF.time_slot
 
-MODEL_NAME = os.path.join(CONF.models_dir,"78.48-acc-64x3-batch-norm-9epoch-1616816408-loss-0.51.model")
+MODEL_NAME = os.path.join(CONF.models_dir,CONF.getAttr("default","test_model"))
+print(MODEL_NAME)
 model = tf.keras.models.load_model(MODEL_NAME)
 model.predict(np.zeros((32,60,60,8)))
 

@@ -1,3 +1,7 @@
+"""
+python collect_data.py left
+"""
+
 from collections import deque
 from pylsl import StreamInlet, resolve_stream
 from boxGraphicView import BoxGraphicView
@@ -10,7 +14,7 @@ import sys
 import dataLoading
 
 
-CONF = ConfigReader("hyperParameters.ini", "3c")
+CONF = ConfigReader("hyperParameters.ini")
 RESHAPE = (-1, 8, 60)
 FFT_MAX_HZ = CONF.frequency_slot
 HM_SECONDS = 10
@@ -20,7 +24,7 @@ CHANNELS_NUM = CONF.channels_num
 TIME_SLOT = CONF.time_slot
 ACTIONS = CONF.actions
 CONF.addActions(ACTION)
-MODEL_NAME = os.path.join(CONF.models_dir,"56.6-acc-64x3-batch-norm-9epoch-1616553967-loss-1.77.model")
+MODEL_NAME = os.path.join(CONF.models_dir,CONF.getAttr("default", "test_model"))
 model = tf.keras.models.load_model(MODEL_NAME)
 model.predict(np.zeros((32,60,60,8)))
 
@@ -72,34 +76,29 @@ for i in range(TOTAL_ITERS):
 # plt.plot(channel_datas[0][0])
 # plt.show()
 
-datausage = sys.argv[2]
-if datausage == "train":
-    datadir_3c = CONF.training_data_dir
-    datadir_date = "all_data/"+time.strftime("%Y%m%d", time.localtime())+"_train_data"
-elif datausage == "test":
-    datadir_3c = CONF.testing_data_dir
-    datadir_date = "all_data/"+time.strftime("%Y%m%d", time.localtime())+"_test_data"
+datadir = CONF.data_dir
+datadir_date = "all_data/"+time.strftime("%Y%m%d", time.localtime())
 
-if not os.path.exists(datadir_3c):
-    os.mkdir(datadir_3c)
+if not os.path.exists(datadir):
+    os.mkdir(datadir)
 if not os.path.exists(datadir_date):
     os.mkdir(datadir_date)
 
 
-actiondir_3c = f"{datadir_3c}/{ACTION}"
+actiondir = f"{datadir}/{ACTION}"
 actiondir_date = f"{datadir_date}/{ACTION}"
-if not os.path.exists(actiondir_3c):
-    os.mkdir(actiondir_3c)
+if not os.path.exists(actiondir):
+    os.mkdir(actiondir)
 if not os.path.exists(actiondir_date):
     os.mkdir(actiondir_date)
 
 print(len(channel_datas))
 
 print(f"saving {ACTION} data...")
-np.save(os.path.join(actiondir_3c, f"{int(time.time())}.npy"), np.array(channel_datas))
+np.save(os.path.join(actiondir, f"{int(time.time())}.npy"), np.array(channel_datas))
 np.save(os.path.join(actiondir_date, f"{int(time.time())}.npy"), np.array(channel_datas))
 print("done.")
 # winsound.Beep(550,500)
 for action in CONF.actions:
-    print(f"{action}:{len(os.listdir(f'{datadir_3c}/{action}'))}")
-print(ACTION, correct/total)
+    print(f"{action}:{len(os.listdir(f'{datadir}/{action}'))}")
+print(ACTION, "accuracy:",correct/total)

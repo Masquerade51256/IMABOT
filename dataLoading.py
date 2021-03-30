@@ -9,7 +9,6 @@ CONF = ConfigReader()
 RESHAPE = (-1, CONF.time_slot, CONF.frequency_slot, CONF.channels_num)
 
 def load(starting_dir,
-                    tag_flag = "onehot",
                     cfm = "default"):
     if cfm != "default":
         CONF.setMode(cfm)
@@ -34,30 +33,21 @@ def load(starting_dir,
         print(action,training_data[action].shape)
 
     lengths = [len(training_data[action]) for action in actions]
-    print(lengths)
     if CONF.getAttr("default", "cut_flag") == "cut":
         for action in actions:
             np.random.shuffle(training_data[action])  # note that regular shuffle is GOOF af
             training_data[action] = training_data[action][:min(lengths)]        ## 规格化,将三个标签的长度截取成相同，保证训练样本中的比例为1:1:1 ###
-
-    lengths = [len(training_data[action]) for action in actions]
-    print(lengths)
+            lengths = [len(training_data[action]) for action in actions]
 
     combined_data = []
     for action in actions:
-        if tag_flag == "onehot":
-            act1hot = np.zeros_like(actions, int)
-            act1hot[int(np.argwhere(np.array(actions)==action))] = 1
-            act1hot = list(act1hot)
-            # print(act1hot)
-            tag = act1hot
-        elif tag_flag == "std_str":
-            tag = action
-        elif tag_flag == "map3_str":
-            tag = action.split("_")[0]
-            
+        act1hot = np.zeros_like(actions, int)
+        act1hot[int(np.argwhere(np.array(actions)==action))] = 1
+        # print(act1hot)
+        # act1hot = list(act1hot)
+        # print(act1hot)
         for data in training_data[action]:
-            combined_data.append([data, tag])        #将训练数据写成[data, tag]的记录对，其中tag使用onehot表示
+            combined_data.append([data, act1hot])        #将训练数据写成[data, tag]的记录对，其中tag使用onehot表示
 
     np.random.shuffle(combined_data)
     print("total length:",len(combined_data))
@@ -82,7 +72,7 @@ def tag_divide(combined_data):
     for X, y in combined_data:
         data_X.append(X)
         data_y.append(y)
-    data_X = np.array(data_X).reshape(RESHAPE)
+    data_X = np.array(data_X, "float16").reshape(RESHAPE)
     data_y = np.array(data_y)
     return data_X, data_y
         

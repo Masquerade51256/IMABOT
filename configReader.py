@@ -8,8 +8,7 @@ class ConfigReader:
             self.confMode = self.conf["default"]["mode"]
         else:
             self.confMode = cfm
-        self.training_data_dir = self.conf[self.confMode]["training_data_dir"]
-        self.testing_data_dir = self.conf[self.confMode]["testing_data_dir"]
+        self.data_dir = self.conf[self.confMode]["data_dir"]
         self.models_dir = self.conf[self.confMode]["models_dir"]
         self.actions = self.conf[self.confMode]["actions"].split(',')
         self.channels_num = int(self.conf["default"]["channels_num"])
@@ -50,17 +49,6 @@ class ConfigReader:
                     self.conf.write(configfile)
             self.__init__()
             return 1
-
-    # def setMode(self, mode):
-    #     if self.confMode != mode:
-    #         self.confMode = mode
-    #         self.conf.set("default", "mode", self.confMode)
-    #         with open('hyperParameters.ini', 'w') as configfile:
-    #             self.conf.write(configfile)
-    #         return 1
-    #     else:
-    #         return 0
-
 
 if __name__ == "__main__":
     confR = ConfigReader()

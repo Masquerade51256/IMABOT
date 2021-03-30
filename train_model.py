@@ -4,7 +4,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten
 from tensorflow.keras.layers import Conv2D
 from tensorflow.keras.layers import MaxPooling2D, BatchNormalization
-import time
+import time 
 import dataLoading
 import gc
 from configReader import ConfigReader
@@ -23,7 +23,7 @@ OUT_SIZE = len(ACTIONS) #输出规格，与分类数有关
 # ========================== data create =======================
 
 print("Loading data...")
-all_data = dataLoading.load(CONF.getAttr("3c", "data_dir"))
+all_data = dataLoading.load(CONF.getAttr("default", "data_dir"))
 print("Done.")
 data_size = len(all_data)
 print("all data: ", data_size)
@@ -81,6 +81,11 @@ model.add(Conv2D(64, (3,3)))
 model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=2))
 
+### Hidden Layer4
+model.add(Conv2D(64, (3,3)))   
+model.add(Activation('relu'))
+model.add(MaxPooling2D(pool_size=2))
+
 model.add(Flatten())
 model.add(Dense(512))   
 
@@ -100,13 +105,11 @@ model.compile(loss='categorical_crossentropy',
 # ========================== model train ==========================
 
 ### 训练 ###
-# epochs 训练次数，一个epoch指将样本中的数据全部学习了一次
 epochs = CONF.epochs
-# batch_size 对样本总数进行分批，以批为单位进行学习，而不是单个数据。由于之前步骤中已经将数据打乱，等效于此处随机分批
 batch_size = CONF.batch_size
 model.fit(train_X, train_y, batch_size=batch_size, epochs=epochs, validation_split=0.25)
 score = model.evaluate(test_X, test_y, batch_size=batch_size)
-MODEL_NAME = f"{CONF.models_dir}/{round(score[1]*100,2)}-acc-64x3-batch-norm-{int(time.time())}-loss-{round(score[0],2)}.model"
+MODEL_NAME = f"{CONF.models_dir}/{round(score[1]*100,2)}-acc-64x3x4-batchsize{batch_size}-epochs{epochs}-{int(time.time())}-loss-{round(score[0],2)}.model"
 model.save(MODEL_NAME)
 print("saved:")
 print(MODEL_NAME)
