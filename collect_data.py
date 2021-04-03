@@ -61,7 +61,7 @@ for i in range(TOTAL_ITERS):
     if l >=TIME_SLOT:
         head = l-TIME_SLOT
         raw_data = np.array(channel_datas).reshape(RESHAPE)[head:]
-        input_data = dataLoading.format(raw_data)
+        input_data = dataLoading.cutData(raw_data)
         output_data = model.predict(input_data)
         output_act = ACTIONS[np.argmax(output_data)]
         act = output_act.split("_")[0]

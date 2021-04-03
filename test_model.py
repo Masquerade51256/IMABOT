@@ -34,7 +34,8 @@ box = BoxGraphicView()
 
 channel_datas = []
 
-for i in range(TOTAL_ITERS):  # how many iterations. Eventually this would be a while True
+# for i in range(TOTAL_ITERS):  # how many iterations. Eventually this would be a while True
+while(True):
     channel_data = []
     for i in range(CHANNELS_NUM): # 8 channels
         sample, timestamp = inlet.pull_sample()
@@ -52,8 +53,11 @@ for i in range(TOTAL_ITERS):  # how many iterations. Eventually this would be a 
         head = l-TIME_SLOT
         raw_data = np.array(channel_datas).reshape(RESHAPE)[head:]
         # print(raw_data)
-        input_data = dataLoading.format(raw_data)
+        input_data = dataLoading.cutData(raw_data)
+        input_data = input_data[...,CONF.selected_channels]
         # print(input_data)
+
+
         output_data = model.predict(input_data)
         output_act = ACTIONS[np.argmax(output_data)]
         print(output_act, output_data)

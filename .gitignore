@@ -1,5 +1,5 @@
 .idea/*
 *data/*
-*_models/*
+*models/*
 *.pyc
 useless/*

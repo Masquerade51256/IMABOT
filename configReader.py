@@ -11,12 +11,17 @@ class ConfigReader:
         self.data_dir = self.conf[self.confMode]["data_dir"]
         self.models_dir = self.conf[self.confMode]["models_dir"]
         self.actions = self.conf[self.confMode]["actions"].split(',')
-        self.channels_num = int(self.conf["default"]["channels_num"])
+        self.channels_num = int(self.conf["default"]["total_channels"])
         self.frequency_slot = int(self.conf["default"]["frequency_slot"])
         self.time_slot = int(self.conf["default"]["time_slot"])
         self.data_stride = int(self.conf["default"]["data_stride"])
         self.batch_size = int(self.conf["default"]["batch_size"])
         self.epochs = int(self.conf["default"]["epochs"])
+
+        s = self.conf["default"]["selected_channels"]
+        self.selected_channels = s.split(",")
+        for i in range(len(self.selected_channels)):
+            self.selected_channels[i] = int(self.selected_channels[i])
 
     def addActions(self, action, actionMode="default"):
         if actionMode == "default":
