@@ -14,20 +14,23 @@ import sys
 import dataLoading
 
 
-CONF = ConfigReader("hyperParameters.ini")
+ACTION = sys.argv[1]
+mode = "default"
+if ACTION == "left" or ACTION == "right":
+    mode = "horizontal"
+else:
+    mode = "vertical"
+
+CONF = ConfigReader("hyperParameters.ini", mode)
 RESHAPE = (-1, 8, 60)
 FFT_MAX_HZ = CONF.frequency_slot
 HM_SECONDS = 10
 TOTAL_ITERS = HM_SECONDS*25
-ACTION = sys.argv[1]
 CHANNELS_NUM = CONF.channels_num
 TIME_SLOT = CONF.time_slot
 ACTIONS = CONF.actions
 CONF.addActions(ACTION)
-if ACTION=="left" or ACTION=="right":
-    model = tf.keras.models.load_model( os.path.join(CONF.models_dir,CONF.getAttr("default", "horizontal")))
-else:
-    model = tf.keras.models.load_model( os.path.join(CONF.models_dir,CONF.getAttr("default", "vertical")))
+model = tf.keras.models.load_model( os.path.join(CONF.models_dir,CONF.test_model))
 
 
 last_print = time.time()
@@ -67,7 +70,7 @@ for i in range(TOTAL_ITERS):
         output_act = ACTIONS[np.argmax(output_data)]
         act = output_act.split("_")[0]
         print(act,output_data)
-        box.move(act,1)
+        box.move(act,step = 1)
         if act == ACTION:
             correct += 1
         total += 1

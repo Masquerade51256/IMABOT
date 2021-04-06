@@ -42,31 +42,44 @@ class BoxGraphicView:
         if step == -1:
             step = self.MOVE_SPEED
 
-        if dir_h == 'left':
-            self.square['x1']-=step
-            self.square['x2']-=step
-        elif dir_h == 'right':
-            self.square['x1']+=step
-            self.square['x2']+=step
-        elif dir_h == 'none':
-            pass
-        else:
-            move = random.choice([-1,0,1])
-            self.square['x1']+=(move*step)
-            self.square['x2']+=(move*step)
-
-        if dir_v == "up":
-            self.square['y1']+=step
-            self.square['y2']+=step
-        elif dir_v == "down":
-            self.square['y1']-=step
-            self.square['y2']+=step
-        elif dir_v == 'none':
-            pass
-        else:
+        if dir_v == 'random':
             move = random.choice([-1,0,1])
             self.square['y1']+=(move*step)
             self.square['y2']+=(move*step)
+        elif dir_v == 'none':
+            pass
+        else:
+            self.singleMove(dir_v, step)
+
+        if dir_h == 'random':
+            move = random.choice([-1,0,1])
+            self.square['x1']+=(move*step)
+            self.square['x2']+=(move*step)
+        elif dir_h == 'none':
+            pass
+        else:
+            self.singleMove(dir_h, step)
+            
+
+    def singleMove(self, act, step=-1):
+        if step == -1:
+            step = self.MOVE_SPEED
+
+        if act == 'up':
+            self.square['y1']-=step
+            self.square['y2']-=step
+        elif act == 'down':
+            self.square['y1']+=step
+            self.square['y2']+=step
+        if act == 'left':
+            self.square['x1']-=step
+            self.square['x2']-=step
+        elif act == 'right':
+            self.square['x1']+=step
+            self.square['x2']+=step
+        else:
+            pass
+
 
 if __name__=="__main__":
     box=BoxGraphicView()

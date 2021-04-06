@@ -7,7 +7,7 @@ from tensorflow.keras.layers import MaxPooling2D, BatchNormalization
 import time 
 import dataLoading
 import gc
-from configReader import ConfigReader
+from configReader import ConfigReader 
 
 CONF = ConfigReader("hyperParameters.ini")
 ACTIONS = CONF.actions
