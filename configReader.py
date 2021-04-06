@@ -4,7 +4,7 @@ class ConfigReader:
     def __init__(self, confPath="hyperParameters.ini",cfm = "default"):
         self.conf = configparser.ConfigParser()
         self.conf.read(confPath)
-        if cfm == "default":
+        if cfm == "default": 
             self.confMode = self.conf["default"]["mode"]
         else:
             self.confMode = cfm
