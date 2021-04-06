@@ -25,7 +25,7 @@ class BoxGraphicView:
         self.vertical_line = np.ones((10, self.WIDTH, 3)) * np.random.uniform(size=(3,))
         self.env = np.zeros((self.WIDTH, self.HEIGHT, 3))
 
-    def move(self, direction, step=0):
+    def move(self,dir_h="none",dir_v="none",step=-1):
         '''
         e.g.:\n
         box=BoxGraphicView()\n
@@ -39,21 +39,34 @@ class BoxGraphicView:
         self.env[self.square['y1']:self.square['y2'], self.square['x1']:self.square['x2']] = self.box
         cv2.imshow('', self.env)
         cv2.waitKey(1)
-
-        if step == 0:
+        if step == -1:
             step = self.MOVE_SPEED
-        if direction == 'left':
+
+        if dir_h == 'left':
             self.square['x1']-=step
             self.square['x2']-=step
-        elif direction == 'right':
+        elif dir_h == 'right':
             self.square['x1']+=step
             self.square['x2']+=step
-        elif direction == 'none':
+        elif dir_h == 'none':
             pass
         else:
             move = random.choice([-1,0,1])
             self.square['x1']+=(move*step)
             self.square['x2']+=(move*step)
+
+        if dir_v == "up":
+            self.square['y1']+=step
+            self.square['y2']+=step
+        elif dir_v == "down":
+            self.square['y1']-=step
+            self.square['y2']+=step
+        elif dir_v == 'none':
+            pass
+        else:
+            move = random.choice([-1,0,1])
+            self.square['y1']+=(move*step)
+            self.square['y2']+=(move*step)
 
 if __name__=="__main__":
     box=BoxGraphicView()

@@ -17,10 +17,9 @@ ACTIONS = CONF.actions
 CHANNELS_NUM = CONF.channels_num
 TIME_SLOT = CONF.time_slot
 
-MODEL_NAME = os.path.join(CONF.models_dir,CONF.getAttr("default","test_model"))
-print(MODEL_NAME)
-model = tf.keras.models.load_model(MODEL_NAME)
-model.predict(np.zeros((32,60,60,8)))
+model_h = tf.keras.models.load_model(os.path.join(CONF.models_dir,CONF.getAttr("default","horizontal_model")))
+model_v = tf.keras.models.load_model(os.path.join(CONF.models_dir,CONF.getAttr("default","vertical_model")))
+# model_h.predict(np.zeros((32,60,60,8)))
 
 
 last_print = time.time()
@@ -55,13 +54,15 @@ while(True):
         # print(raw_data)
         input_data = dataLoading.cutData(raw_data)
         input_data = input_data[...,CONF.selected_channels]
-        # print(input_data)
 
+        output_h = model_h.predict(input_data)
+        act_h = ACTIONS[np.argmax(output_h)]
+        print(act_h, output_h)
 
-        output_data = model.predict(input_data)
-        output_act = ACTIONS[np.argmax(output_data)]
-        print(output_act, output_data)
-        act = output_act.split("_")[0]
-        box.move(act,1)
+        output_v = model_v.predict(input_data)
+        act_v = ACTIONS[np.argmax(output_v)]
+        print(act_v, output_v)
+
+        box.move(dir_h=act_h,dir_v=act_v,step=1)
     else:
-        box.move("random",1)
+        box.move(dir_h="random",dir_v="random",step=1)

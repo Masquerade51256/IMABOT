@@ -24,9 +24,10 @@ CHANNELS_NUM = CONF.channels_num
 TIME_SLOT = CONF.time_slot
 ACTIONS = CONF.actions
 CONF.addActions(ACTION)
-MODEL_NAME = os.path.join(CONF.models_dir,CONF.getAttr("default", "test_model"))
-model = tf.keras.models.load_model(MODEL_NAME)
-model.predict(np.zeros((32,60,60,8)))
+if ACTION=="left" or ACTION=="right":
+    model = tf.keras.models.load_model( os.path.join(CONF.models_dir,CONF.getAttr("default", "horizontal")))
+else:
+    model = tf.keras.models.load_model( os.path.join(CONF.models_dir,CONF.getAttr("default", "vertical")))
 
 
 last_print = time.time()

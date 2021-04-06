@@ -8,8 +8,7 @@ from configReader import ConfigReader
 CONF = ConfigReader()
 RESHAPE = (-1, CONF.time_slot, CONF.frequency_slot, CONF.channels_num)
 
-def load(starting_dir,
-                    cfm = "default"):
+def load(starting_dir, cfm = "default"):
     if cfm != "default":
         CONF.setMode(cfm)
     
@@ -88,20 +87,17 @@ def cutData(raw_data,stride=CONF.data_stride,time_slot=CONF.time_slot):
     f=raw_data.shape[2]
     n=int((N-time_slot)/stride+1)
     # print(N, c, f, n)
-    data=np.ones((n,time_slot,c,f))
+    data=np.ones((n,time_slot,c,f), dtype="float16")
     for i in range(0,N,stride):
         # print(i+time_slot, raw_data.shape[0])
         if i+time_slot<=raw_data.shape[0]:
             data[int(i/stride)]=raw_data[np.arange(i,i+time_slot)]
     data=data.transpose(0,1,3,2)
-    # print(data.shape)
+    # print(data.dtype)
     return data
 
 if __name__=="__main__":
-    # load_and_format(starting_dir="data",
-    #                 stride=10,
-    #                 time_slot=60,
-    #                 actions = ["left", "right", "none"])
+    load("new_data")
 
     # all_num=12
     # channels_num=8
