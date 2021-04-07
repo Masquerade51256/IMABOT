@@ -13,12 +13,13 @@ RESHAPE = (-1, 8, 60)
 FFT_MAX_HZ = CONF.frequency_slot
 HM_SECONDS = 10
 TOTAL_ITERS = HM_SECONDS*25
-ACTIONS = CONF.actions
+ACTIONS_H = CONF.getAttr("horizontal", "actions").split(',')
+ACTIONS_V = CONF.getAttr("vertical", "actions").split(',')
 CHANNELS_NUM = CONF.channels_num
 TIME_SLOT = CONF.time_slot
 
-model_h = tf.keras.models.load_model(os.path.join(CONF.models_dir,CONF.getAttr("default","horizontal_model")))
-model_v = tf.keras.models.load_model(os.path.join(CONF.models_dir,CONF.getAttr("default","vertical_model")))
+model_h = tf.keras.models.load_model(os.path.join(CONF.getAttr("horizontal","models_dir"),CONF.getAttr("horizontal","test_model")))
+model_v = tf.keras.models.load_model(os.path.join(CONF.getAttr("vertical","models_dir"),CONF.getAttr("vertical","test_model")))
 # model_h.predict(np.zeros((32,60,60,8)))
 
 
@@ -56,11 +57,11 @@ while(True):
         input_data = input_data[...,CONF.selected_channels]
 
         output_h = model_h.predict(input_data)
-        act_h = ACTIONS[np.argmax(output_h)]
+        act_h = ACTIONS_H[np.argmax(output_h)]
         print(act_h, output_h)
 
         output_v = model_v.predict(input_data)
-        act_v = ACTIONS[np.argmax(output_v)]
+        act_v = ACTIONS_V[np.argmax(output_v)]
         print(act_v, output_v)
 
         box.move(dir_h=act_h,dir_v=act_v,step=1)

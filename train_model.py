@@ -23,7 +23,7 @@ OUT_SIZE = len(ACTIONS) #输出规格，与分类数有关
 # ========================== data create =======================
 
 print("Loading data...")
-all_data = dataLoading.load(CONF.getAttr("default", "data_dir"))
+all_data = dataLoading.load(CONF.data_dir)
 print("Done.")
 data_size = len(all_data)
 print("all data: ", data_size)
