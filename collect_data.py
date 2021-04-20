@@ -30,7 +30,7 @@ CHANNELS_NUM = CONF.channels_num
 TIME_SLOT = CONF.time_slot
 ACTIONS = CONF.actions
 CONF.addActions(ACTION)
-model = tf.keras.models.load_model( os.path.join(CONF.models_dir,CONF.test_model))
+model = tf.keras.models.load_model(os.path.join(CONF.models_dir,CONF.test_model))
 
 
 last_print = time.time()

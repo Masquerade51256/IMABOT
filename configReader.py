@@ -45,6 +45,20 @@ class ConfigReader:
     def getAttr(self, section, item):
         return self.conf[section][item]
     
+    def setChannels(self, channels, mode = "default"):
+        if mode == "default":
+            actionMode = self.confMode
+        c_str = channels
+        self.conf.set(actionMode, "selected_channels", c_str)
+        
+        self.selected_channels = c_str.split(",")
+        for i in range(len(self.selected_channels)):
+            self.selected_channels[i] = int(self.selected_channels[i])
+            
+        with open('hyperParameters.ini', 'w') as configfile:
+            self.conf.write(configfile)
+        return 1
+        
     def setMode(self, cfm):
         if self.confMode == cfm:
             return 0

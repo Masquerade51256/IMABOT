@@ -15,6 +15,7 @@ TIME_SLOT = CONF.time_slot
 FREQUENCY_SLOT = CONF.frequency_slot
 CHANNELS_NUM = len(CONF.selected_channels)
 RESHAPE = (-1, TIME_SLOT, FREQUENCY_SLOT, CHANNELS_NUM) 
+HIDDEN_LAYERS = int(CONF.getAttr("default", "hidden_layers"))
 # 用于后续规格化，(NTFC)
 # 由于后续keras中卷积层默认通道数在最后一个维度上，即channels_last，故此处需要将8放在最后
 # cpu版本的tf不支持channels_first，只支持NHWC模式，即channels_last
@@ -66,28 +67,14 @@ model.add(Conv2D(64, (3,3), input_shape=train_X.shape[1:]))
 # 若想使卷积不缩小数据规模，即HO=HI，求解得padding=(h-1)/2，此处即padding=1
 model.add(Activation('relu'))       ### 激发函数
 
-### Hidden_Layer1
-model.add(Conv2D(64, (3,3)))   
-model.add(Activation('relu'))
-model.add(MaxPooling2D(pool_size=2))
-
-### Hidden Layer2
-model.add(Conv2D(64, (3,3)))   
-model.add(Activation('relu'))
-model.add(MaxPooling2D(pool_size=2))
-
-### Hidden Layer3
-model.add(Conv2D(64, (3,3)))   
-model.add(Activation('relu'))
-model.add(MaxPooling2D(pool_size=2))
-
-# ### Hidden Layer4
-# model.add(Conv2D(64, (3,3)))   
-# model.add(Activation('relu'))
-# model.add(MaxPooling2D(pool_size=2))
+### Hidden_Layers
+for i in range(HIDDEN_LAYERS):
+  model.add(Conv2D(64, (3,3)))   
+  model.add(Activation('relu'))
+  model.add(MaxPooling2D(pool_size=2))
 
 model.add(Flatten())
-model.add(Dense(512))   
+model.add(Dense(256))   
 
 ### Output Layer
 model.add(Dense(OUT_SIZE))
@@ -109,8 +96,9 @@ epochs = CONF.epochs
 batch_size = CONF.batch_size
 model.fit(train_X, train_y, batch_size=batch_size, epochs=epochs, validation_split=0.25)
 score = model.evaluate(test_X, test_y, batch_size=batch_size)
-MODEL_NAME = f"{CONF.models_dir}/{round(score[1]*100,2)}-acc-64x3x4-batchsize{batch_size}-epochs{epochs}-{int(time.time())}-loss-{round(score[0],2)}.model"
+channels =CONF.getAttr(CONF.confMode, "selected_channels").replace(",","")
+MODEL_NAME = f"{CONF.models_dir}/{round(score[1]*100,2)}acc-64x3x{HIDDEN_LAYERS}-{batch_size}batchsize-{epochs}epochs-{round(score[0],2)}loss-{channels}-{int(time.time())}.model"
 model.save(MODEL_NAME)
 print("channels: ", CONF.selected_channels)
 print("saved:")
-print(MODEL_NAME) 
+print(MODEL_NAME)

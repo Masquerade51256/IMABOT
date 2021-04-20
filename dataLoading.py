@@ -79,6 +79,8 @@ def tag_divide(combined_data):
 
 def cutData(raw_data,stride=CONF.data_stride,time_slot=CONF.time_slot):
     """
+    将原始数据划分为带有时间片维度的四维数据，即模型输入格式
+    
     raw_data: 原始数据，要求三维数据，分别表示数据量、通道数和频率,
     其中N要大于等于time_slot
     """
@@ -98,26 +100,4 @@ def cutData(raw_data,stride=CONF.data_stride,time_slot=CONF.time_slot):
 
 if __name__=="__main__":
     load("new_data")
-
-    # all_num=12
-    # channels_num=8
-    # freq_slot=6
-    # raw_data = np.random.randn(all_num,channels_num,freq_slot)
-    # print(format(raw_data))
-
-    # actions = CONF.actions
-    # tag_flag = "map3_tag"
-    # for action in actions:
-    #     if tag_flag == "onehot_tag":
-    #         act1hot = np.zeros_like(actions, int)
-    #         act1hot[int(np.argwhere(np.array(actions)==action))] = 1
-    #         act1hot = list(act1hot)
-    #         tag = act1hot
-    #         print(tag)
-    #     elif tag_flag == "str_tag":
-    #         tag = action
-    #         print(tag)
-    #     elif tag_flag == "map3_tag":
-    #         tag = action.split("_")[0]
-    #         print(tag)
     pass
