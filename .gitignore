@@ -1,5 +1,6 @@
 .idea/*
 *data/*
 *models/*
+*estimator/*
 *.pyc
 useless/*
